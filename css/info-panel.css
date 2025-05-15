@@ -13,15 +13,39 @@
     background-color: var(--theme-dark-surface);
     border-left: 1px solid var(--theme-accent-secondary);
     z-index: 1000;
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
+                box-shadow 0.4s ease;
     overflow-y: auto;
-    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
+    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3),
+                -2px 0 10px rgba(var(--theme-accent-secondary-rgb), 0.1);
     display: flex;
     flex-direction: column;
+    scrollbar-width: thin;
+    scrollbar-color: var(--theme-accent-secondary) var(--theme-dark-surface);
 }
 
 .info-panel.active {
     transform: translateX(-400px);
+    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.4),
+                -2px 0 15px rgba(var(--theme-accent-primary-rgb), 0.15);
+}
+
+/* Custom scrollbar styling for info panel */
+.info-panel::-webkit-scrollbar {
+    width: 6px;
+}
+
+.info-panel::-webkit-scrollbar-track {
+    background: var(--theme-dark-surface); 
+}
+
+.info-panel::-webkit-scrollbar-thumb {
+    background: var(--theme-accent-secondary);
+    border-radius: 3px;
+}
+
+.info-panel::-webkit-scrollbar-thumb:hover {
+    background: var(--theme-accent-primary);
 }
 
 .info-panel-header {
@@ -52,14 +76,40 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 30px;
-    height: 30px;
-    border-radius: 4px;
-    transition: background-color 0.2s, color 0.2s;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.info-panel-close:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle, rgba(var(--theme-accent-primary-rgb), 0.3) 0%, rgba(var(--theme-accent-primary-rgb), 0) 70%);
+    opacity: 0;
+    transform: scale(0.5);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .info-panel-close:hover {
-    background-color: rgba(var(--theme-accent-primary-rgb), 0.1);
+    color: var(--theme-accent-primary);
+    transform: scale(1.1);
+}
+
+.info-panel-close:hover:before {
+    opacity: 1;
+    transform: scale(1.2);
+}
+
+.info-panel-close:focus {
+    outline: 2px solid var(--theme-accent-primary);
+    outline-offset: 2px;
     color: var(--theme-accent-primary);
 }
 

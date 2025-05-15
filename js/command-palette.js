@@ -270,23 +270,45 @@ class CommandPalette {
             }
         });
         
-        // Focus trap handling
+        // Focus trap and enhanced keyboard handling
         document.addEventListener('keydown', (e) => {
-            if (!this.isActive || e.key !== 'Tab') return;
+            if (!this.isActive) return;
             
-            this.updateFocusableElements();
-            const firstElement = this.focusableElements[0];
-            const lastElement = this.focusableElements[this.focusableElements.length - 1];
+            // Handle Tab key for focus trapping
+            if (e.key === 'Tab') {
+                this.updateFocusableElements();
+                const firstElement = this.focusableElements[0];
+                const lastElement = this.focusableElements[this.focusableElements.length - 1];
+                
+                // Shift+Tab on first element should go to last element
+                if (e.shiftKey && document.activeElement === firstElement) {
+                    e.preventDefault();
+                    lastElement.focus();
+                } 
+                // Tab on last element should go to first element
+                else if (!e.shiftKey && document.activeElement === lastElement) {
+                    e.preventDefault();
+                    firstElement.focus();
+                }
+            }
             
-            // Shift+Tab on first element should go to last element
-            if (e.shiftKey && document.activeElement === firstElement) {
+            // Handle F6 to switch focus between main sections
+            if (e.key === 'F6') {
                 e.preventDefault();
-                lastElement.focus();
-            } 
-            // Tab on last element should go to first element
-            else if (!e.shiftKey && document.activeElement === lastElement) {
-                e.preventDefault();
-                firstElement.focus();
+                
+                // Determine current focus area and move to next logical section
+                if (document.activeElement === this.searchInput) {
+                    // Move focus to the first result item
+                    const firstItem = this.resultsContainer.querySelector('.command-palette-item');
+                    if (firstItem) firstItem.focus();
+                } else {
+                    // Move focus back to search input
+                    this.searchInput.focus();
+                }
+                
+                // Announce focus change to screen readers
+                this.announceForScreenReader('Focus moved to ' + 
+                    (document.activeElement === this.searchInput ? 'search input' : 'results list'));
             }
         });
     }
@@ -322,26 +344,43 @@ class CommandPalette {
         
         this.isActive = true;
         document.body.style.overflow = 'hidden'; // Prevent background scrolling
-        this.overlay.classList.add('active');
+        
+        // Create and dispatch custom event
+        const openEvent = new CustomEvent('commandPaletteOpened', { 
+            detail: { timestamp: new Date().toISOString() } 
+        });
+        window.dispatchEvent(openEvent);
+        
+        // Reset search value and filter results
         this.searchInput.value = '';
         this.filterCommands();
         this.renderResults();
         
-        // Add animation classes to command items
-        setTimeout(() => {
-            this.searchInput.focus();
+        // Show the overlay with animation
+        requestAnimationFrame(() => {
+            this.overlay.classList.add('active');
             
-            // Add a subtle entrance animation to each item
-            const items = this.resultsContainer.querySelectorAll('.command-palette-item');
-            items.forEach((item, index) => {
-                item.style.animationDelay = `${0.05 * (index + 1)}s`;
-            });
-        }, 100);
-        
-        // Update focusable elements for focus trapping
-        setTimeout(() => {
-            this.updateFocusableElements();
-        }, 200);
+            // Set initial focus and configure animations after DOM update
+            setTimeout(() => {
+                this.searchInput.focus();
+                
+                // Add staggered entrance animation to each item
+                const items = this.resultsContainer.querySelectorAll('.command-palette-item');
+                items.forEach((item, index) => {
+                    item.style.animationDelay = `${0.03 * (index + 1)}s`;
+                    item.style.opacity = '0';
+                    requestAnimationFrame(() => {
+                        item.style.opacity = '1';
+                    });
+                });
+                
+                // Announce to screen readers
+                this.announceForScreenReader('Command palette opened. Use arrow keys to navigate options.');
+                
+                // Update focusable elements for focus trapping
+                this.updateFocusableElements();
+            }, 50);
+        });
         
         // Log event
         this.logEvent('Command palette opened');
@@ -353,23 +392,61 @@ class CommandPalette {
     hidePalette() {
         if (!this.isActive) return;
         
+        // Mark as inactive first to prevent duplicate calls
         this.isActive = false;
-        document.body.style.overflow = ''; // Restore scrolling
         
-        // Apply closing animation
+        // Create and dispatch custom event
+        const closeEvent = new CustomEvent('commandPaletteClosed', { 
+            detail: { timestamp: new Date().toISOString() } 
+        });
+        window.dispatchEvent(closeEvent);
+        
+        // Add closing animation classes
         this.container.style.opacity = '0';
         this.container.style.transform = 'translateY(-10px) scale(0.98)';
+        
+        // Announce to screen readers
+        this.announceForScreenReader('Command palette closed');
         
         // Wait for animation to complete before fully hiding
         setTimeout(() => {
             this.overlay.classList.remove('active');
+            document.body.style.overflow = ''; // Restore scrolling
+            
             // Reset styles after hiding
-            this.container.style.opacity = '';
-            this.container.style.transform = '';
-        }, 200);
+            requestAnimationFrame(() => {
+                this.container.style.opacity = '';
+                this.container.style.transform = '';
+            });
+        }, 250);
         
         // Log event
         this.logEvent('Command palette closed');
+    }
+    
+    /**
+     * Announce a message to screen readers
+     * @param {string} message - Message to announce
+     */
+    announceForScreenReader(message) {
+        // Create or reuse an aria-live region
+        let announcer = document.getElementById('command-palette-announcer');
+        
+        if (!announcer) {
+            announcer = document.createElement('div');
+            announcer.id = 'command-palette-announcer';
+            announcer.setAttribute('aria-live', 'polite');
+            announcer.classList.add('sr-only'); // Screen reader only
+            document.body.appendChild(announcer);
+        }
+        
+        // Set the message
+        announcer.textContent = message;
+        
+        // Clear after announcement (optional)
+        setTimeout(() => {
+            announcer.textContent = '';
+        }, 3000);
     }
     
     /**

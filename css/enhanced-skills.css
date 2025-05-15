@@ -1,0 +1,256 @@
+/* Enhanced Skills Radar Chart Container */
+
+.skills-radar-container {
+  position: relative;
+  background-color: rgba(var(--theme-dark-surface-rgb), 0.7);
+  border-radius: 8px;
+  border: 1px solid rgba(var(--theme-accent-secondary-rgb), 0.6);
+  padding: 2rem;
+  margin-bottom: 3rem;
+  overflow: hidden;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.2);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.skills-radar-container:hover {
+  border-color: rgba(var(--theme-accent-primary-rgb), 0.5);
+  box-shadow: 
+    inset 0 0 30px rgba(0, 0, 0, 0.25),
+    0 5px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Grid background */
+.skills-grid-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    linear-gradient(rgba(var(--theme-accent-secondary-rgb), 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(var(--theme-accent-secondary-rgb), 0.03) 1px, transparent 1px);
+  background-size: 20px 20px;
+  opacity: 0.6;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Radar chart wrapper */
+.skills-radar-chart {
+  display: flex;
+  justify-content: center;
+  position: relative;
+  z-index: 2;
+  min-height: 400px;
+}
+
+/* Radar chart canvas element */
+.radar-chart-canvas {
+  max-width: 100%;
+  height: auto;
+}
+
+.skills-radar-header {
+  margin-bottom: 2rem;
+  position: relative;
+  z-index: 2;
+}
+
+.skills-radar-title {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 1rem;
+  color: var(--theme-accent-primary);
+  margin-bottom: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+}
+
+.skills-radar-description {
+  color: var(--theme-medium-text);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  max-width: 700px;
+}
+
+/* Skills legend */
+.skills-radar-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-top: 2rem;
+  justify-content: center;
+  position: relative;
+  z-index: 2;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px;
+  background-color: rgba(var(--theme-dark-surface-rgb), 0.5);
+  border: 1px solid rgba(var(--theme-accent-secondary-rgb), 0.3);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.legend-item:hover {
+  border-color: var(--theme-accent-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+}
+
+.legend-item.active {
+  background-color: rgba(var(--theme-accent-primary-rgb), 0.1);
+  border-color: var(--theme-accent-primary);
+}
+
+.legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.legend-label {
+  font-family: 'Source Code Pro', 'Roboto Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--theme-medium-text);
+}
+
+.legend-item:hover .legend-label,
+.legend-item.active .legend-label {
+  color: var(--theme-light-text);
+}
+
+/* Radar chart tooltip */
+.radar-tooltip {
+  position: absolute;
+  background-color: rgba(var(--theme-dark-surface-rgb), 0.95);
+  border: 1px solid var(--theme-accent-primary);
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  color: var(--theme-light-text);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(5px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 10;
+  max-width: 200px;
+}
+
+.radar-tooltip.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.tooltip-skill-name {
+  color: var(--theme-accent-primary);
+  font-weight: 600;
+  margin-bottom: 3px;
+}
+
+.tooltip-skill-value {
+  color: var(--theme-light-text);
+  font-family: 'Roboto Mono', monospace;
+}
+
+/* Control buttons */
+.skills-radar-controls {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  display: flex;
+  gap: 10px;
+  z-index: 5;
+}
+
+.radar-control-btn {
+  background-color: rgba(var(--theme-dark-surface-rgb), 0.7);
+  border: 1px solid rgba(var(--theme-accent-secondary-rgb), 0.5);
+  color: var(--theme-medium-text);
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-family: 'Source Code Pro', 'Roboto Mono', monospace;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.radar-control-btn:hover {
+  color: var(--theme-accent-primary);
+  border-color: var(--theme-accent-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Circular decoration elements */
+.radar-decoration {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px dashed rgba(var(--theme-accent-secondary-rgb), 0.3);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.radar-circle-1 {
+  width: 60%;
+  height: 60%;
+  top: 20%;
+  left: 20%;
+}
+
+.radar-circle-2 {
+  width: 40%;
+  height: 40%;
+  top: 30%;
+  left: 30%;
+  border-style: dotted;
+}
+
+.radar-circle-3 {
+  width: 20%;
+  height: 20%;
+  top: 40%;
+  left: 40%;
+}
+
+/* Animation for chart load */
+@keyframes chartFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.skills-radar-chart {
+  animation: chartFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .skills-radar-container {
+    padding: 1.5rem 1rem;
+  }
+  
+  .skills-radar-chart {
+    min-height: 300px;
+  }
+  
+  .skills-radar-controls {
+    position: static;
+    justify-content: flex-end;
+    margin-bottom: 1rem;
+  }
+  
+  .legend-item {
+    padding: 4px 8px;
+  }
+}
