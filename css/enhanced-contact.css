@@ -1,0 +1,410 @@
+/* Enhanced Contact Terminal Styles */
+
+/* Container styling */
+.contact-terminal-container {
+  background-color: rgba(var(--theme-dark-surface-rgb), 0.8);
+  border: 1px solid var(--theme-accent-secondary);
+  border-radius: 6px;
+  padding: 0;
+  position: relative;
+  box-shadow: 
+    0 5px 20px rgba(0, 0, 0, 0.2),
+    0 0 0 1px rgba(var(--theme-accent-secondary-rgb), 0.3) inset;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.contact-terminal-container:hover,
+.contact-terminal-container:focus-within {
+  border-color: var(--theme-accent-primary);
+  box-shadow: 
+    0 8px 30px rgba(0, 0, 0, 0.25),
+    0 0 15px rgba(var(--theme-accent-primary-rgb), 0.1);
+}
+
+/* Terminal header */
+.terminal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  background-color: rgba(var(--theme-dark-bg-rgb), 0.6);
+  border-bottom: 1px solid rgba(var(--theme-accent-secondary-rgb), 0.6);
+}
+
+.terminal-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.terminal-icon {
+  color: var(--theme-accent-primary);
+  font-size: 14px;
+}
+
+.terminal-name {
+  font-family: 'Source Code Pro', 'Roboto Mono', monospace;
+  font-size: 14px;
+  color: var(--theme-light-text);
+  font-weight: 500;
+}
+
+.terminal-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.terminal-btn {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.terminal-btn-close {
+  background-color: #FF5F57;
+}
+
+.terminal-btn-minimize {
+  background-color: #FFBD2E;
+}
+
+.terminal-btn-expand {
+  background-color: #28C840;
+}
+
+.terminal-btn:hover {
+  transform: scale(1.2);
+}
+
+/* Terminal content */
+.terminal-content {
+  padding: 15px;
+  min-height: 300px;
+  position: relative;
+}
+
+/* Terminal output */
+.terminal-output {
+  font-family: 'Source Code Pro', 'Roboto Mono', monospace;
+  font-size: 14px;
+  color: var(--theme-medium-text);
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.output-line {
+  margin-bottom: 5px;
+}
+
+.system-line {
+  color: var(--theme-accent-secondary);
+}
+
+.success-line {
+  color: #28C840;
+}
+
+.error-line {
+  color: #FF5F57;
+}
+
+.info-line {
+  color: var(--theme-accent-primary);
+}
+
+/* Path display */
+.terminal-path {
+  color: var(--theme-accent-primary);
+  font-weight: bold;
+  margin-right: 5px;
+}
+
+/* Command input styling */
+.command-input-container {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.prompt-symbol {
+  color: var(--theme-accent-primary);
+  margin-right: 10px;
+  font-weight: bold;
+}
+
+.command-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  font-family: 'Source Code Pro', 'Roboto Mono', monospace;
+  font-size: 14px;
+  color: var(--theme-light-text);
+  caret-color: var(--theme-accent-primary);
+  padding: 0;
+  position: relative;
+}
+
+.command-input:focus {
+  outline: none;
+}
+
+/* Blinking cursor */
+.cursor-blink {
+  display: inline-block;
+  width: 8px;
+  height: 16px;
+  background-color: var(--theme-accent-primary);
+  animation: cursorBlink 1.2s infinite;
+  position: relative;
+  top: 3px;
+  opacity: 0;
+}
+
+.command-input:focus + .cursor-blink,
+.contact-terminal-container:hover .cursor-blink {
+  opacity: 1;
+}
+
+/* Form inputs styled as terminal commands */
+.terminal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.terminal-form-group {
+  position: relative;
+}
+
+.terminal-form-group::before {
+  content: attr(data-command);
+  color: var(--theme-accent-secondary);
+  font-weight: bold;
+  margin-right: 10px;
+  font-family: 'Source Code Pro', 'Roboto Mono', monospace;
+  font-size: 14px;
+}
+
+.terminal-input {
+  width: calc(100% - 20px);
+  background-color: transparent;
+  border: none;
+  border-bottom: 1px dashed rgba(var(--theme-accent-secondary-rgb), 0.4);
+  padding: 8px 0;
+  margin-left: 20px;
+  font-family: 'Source Code Pro', 'Roboto Mono', monospace;
+  font-size: 14px;
+  color: var(--theme-light-text);
+  transition: all 0.3s ease;
+}
+
+.terminal-input:focus {
+  outline: none;
+  border-bottom-color: var(--theme-accent-primary);
+  border-bottom-style: solid;
+}
+
+.terminal-input:hover {
+  border-bottom-color: rgba(var(--theme-accent-primary-rgb), 0.6);
+}
+
+/* Focus ring for accessibility */
+.terminal-input:focus-visible {
+  box-shadow: 0 0 0 2px rgba(var(--theme-accent-primary-rgb), 0.4);
+  border-radius: 2px;
+}
+
+.terminal-textarea {
+  width: calc(100% - 20px);
+  min-height: 100px;
+  background-color: rgba(var(--theme-dark-bg-rgb), 0.3);
+  border: 1px solid rgba(var(--theme-accent-secondary-rgb), 0.3);
+  border-radius: 4px;
+  padding: 10px;
+  margin-left: 20px;
+  font-family: 'Source Code Pro', 'Roboto Mono', monospace;
+  font-size: 14px;
+  color: var(--theme-light-text);
+  resize: vertical;
+  transition: all 0.3s ease;
+}
+
+.terminal-textarea:focus {
+  outline: none;
+  border-color: var(--theme-accent-primary);
+  box-shadow: 0 0 0 2px rgba(var(--theme-accent-primary-rgb), 0.2);
+}
+
+/* Submit button styled as terminal command */
+.submit-container {
+  display: flex;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.submit-container::before {
+  content: "~$";
+  color: var(--theme-accent-primary);
+  margin-right: 10px;
+  font-family: 'Source Code Pro', 'Roboto Mono', monospace;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.terminal-submit {
+  background-color: rgba(var(--theme-dark-bg-rgb), 0.5);
+  border: 1px solid var(--theme-accent-secondary);
+  border-radius: 4px;
+  padding: 8px 15px;
+  color: var(--theme-light-text);
+  font-family: 'Source Code Pro', 'Roboto Mono', monospace;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.terminal-submit::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    rgba(var(--theme-accent-primary-rgb), 0),
+    rgba(var(--theme-accent-primary-rgb), 0.1),
+    rgba(var(--theme-accent-primary-rgb), 0)
+  );
+  transition: left 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.terminal-submit:hover {
+  background-color: rgba(var(--theme-accent-primary-rgb), 0.1);
+  border-color: var(--theme-accent-primary);
+  color: var(--theme-accent-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.terminal-submit:hover::before {
+  left: 100%;
+}
+
+.terminal-submit:active {
+  transform: translateY(0);
+}
+
+.terminal-submit:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(var(--theme-accent-primary-rgb), 0.4);
+}
+
+/* Terminal status bar */
+.terminal-status {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 15px;
+  background-color: rgba(var(--theme-dark-bg-rgb), 0.6);
+  border-top: 1px solid rgba(var(--theme-accent-secondary-rgb), 0.3);
+  font-family: 'Source Code Pro', 'Roboto Mono', monospace;
+  font-size: 12px;
+  color: var(--theme-medium-text);
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #28C840;
+}
+
+.status-message {
+  color: var(--theme-medium-text);
+}
+
+.terminal-timestamp {
+  color: var(--theme-subtle-text);
+  font-size: 10px;
+}
+
+/* Animation for cursor blink */
+@keyframes cursorBlink {
+  0%, 49% {
+    opacity: 1;
+  }
+  50%, 100% {
+    opacity: 0;
+  }
+}
+
+/* Response animation */
+@keyframes responseTyping {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+.typing-response {
+  overflow: hidden;
+  white-space: nowrap;
+  animation: responseTyping 1s steps(30, end);
+}
+
+/* Loading indicator */
+.terminal-loading {
+  display: inline-block;
+  position: relative;
+  width: 70px;
+  height: 20px;
+}
+
+.terminal-loading::after {
+  content: '⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏';
+  color: var(--theme-accent-primary);
+  position: absolute;
+  animation: terminalLoading 1s steps(10) infinite;
+}
+
+@keyframes terminalLoading {
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+/* Mobile styles */
+@media (max-width: 768px) {
+  .terminal-content {
+    min-height: 250px;
+  }
+  
+  .terminal-input,
+  .terminal-textarea,
+  .terminal-submit {
+    font-size: 13px;
+  }
+  
+  .terminal-form-group::before {
+    font-size: 13px;
+  }
+}

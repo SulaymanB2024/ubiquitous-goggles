@@ -204,28 +204,31 @@ function addLogEntry(message, type = '') {
 }
 
 /**
- * Create decorative data flow lines
+ * Create decorative data flow lines with reduced visual complexity
  */
 function createDataFlowLines() {
-  // Add data flow lines to each section for visual effect
+  // Add data flow lines to each section for visual effect, but limit to fewer sections
   const sections = document.querySelectorAll('section:not(#hero)');
   
-  sections.forEach(section => {
-    const left = document.createElement('div');
-    left.className = 'data-flow-line left';
-    
-    const right = document.createElement('div');
-    right.className = 'data-flow-line right';
-    
-    section.style.position = 'relative';
-    section.appendChild(left);
-    section.appendChild(right);
-    
-    // Add a center line to alternating sections
-    if (sections.indexOf(section) % 2 === 0) {
-      const center = document.createElement('div');
-      center.className = 'data-flow-line center';
-      section.appendChild(center);
+  sections.forEach((section, index) => {
+    // Only add flow lines to every other section to reduce visual complexity
+    if (index % 2 === 0) {
+      const left = document.createElement('div');
+      left.className = 'data-flow-line left';
+      
+      const right = document.createElement('div');
+      right.className = 'data-flow-line right';
+      
+      section.style.position = 'relative';
+      section.appendChild(left);
+      section.appendChild(right);
+      
+      // Only add center line to one section for minimalist design
+      if (index === 2) {  // Only add to the 3rd applicable section
+        const center = document.createElement('div');
+        center.className = 'data-flow-line center';
+        section.appendChild(center);
+      }
     }
   });
 }
@@ -263,7 +266,7 @@ function createBackgroundPatterns() {
 }
 
 /**
- * Enhance the particles effect for the hero section
+ * Enhance the particles effect for the hero section with optimized performance
  */
 function enhanceParticlesEffect() {
   // This function enhances the existing particles.js effect
@@ -275,21 +278,46 @@ function enhanceParticlesEffect() {
       
       // Only proceed if we have access to the particles object
       if (pJS && pJS.particles) {
-        // Add mousemove event for parallax effect on particles
-        document.getElementById('particles-js').addEventListener('mousemove', function(e) {
+        // Add throttled mousemove event for parallax effect on particles
+        const throttle = (func, limit) => {
+          let lastCall = 0;
+          return function(...args) {
+            const now = Date.now();
+            if (now - lastCall >= limit) {
+              lastCall = now;
+              func.apply(this, args);
+            }
+          };
+        };
+        
+        // Apply parallax effect to hero content with throttling
+        document.getElementById('particles-js').addEventListener('mousemove', throttle(function(e) {
           const heroSection = document.getElementById('hero');
-          const moveX = (e.clientX / heroSection.offsetWidth - 0.5) * 20;
-          const moveY = (e.clientY / heroSection.offsetHeight - 0.5) * 20;
+          // Reduce movement range for subtler effect
+          const moveX = (e.clientX / heroSection.offsetWidth - 0.5) * 10; 
+          const moveY = (e.clientY / heroSection.offsetHeight - 0.5) * 10;
           
-          // Apply parallax effect to hero content
+          // Apply gentler parallax effect to hero content with limited decimal places
           const heroContent = document.querySelector('.hero-content');
           if (heroContent) {
-            heroContent.style.transform = `translate(${moveX * -0.5}px, ${moveY * -0.5}px)`;
+            // Round to 1 decimal place for better performance and smoother movement
+            const translateX = Math.round(moveX * -0.3 * 10) / 10;
+            const translateY = Math.round(moveY * -0.3 * 10) / 10;
+            heroContent.style.transform = `translate(${translateX}px, ${translateY}px)`;
           }
-        });
+        }, 50)); // Throttle to max 20 updates per second
         
-        // Custom particle expansion on scroll
-        window.addEventListener('scroll', function() {
+        // Debounced scroll handler for better performance
+        const debounce = (func, delay) => {
+          let inDebounce;
+          return function(...args) {
+            clearTimeout(inDebounce);
+            inDebounce = setTimeout(() => func.apply(this, args), delay);
+          };
+        };
+        
+        // Custom particle adjustment on scroll (with debouncing for performance)
+        window.addEventListener('scroll', debounce(function() {
           const scrollY = window.scrollY;
           const heroHeight = document.getElementById('hero').offsetHeight;
           
@@ -297,14 +325,18 @@ function enhanceParticlesEffect() {
           if (scrollY < heroHeight) {
             // Calculate scroll percentage
             const scrollPercent = scrollY / heroHeight;
-            // Adjust particle parameters based on scroll
-            if (pJS && pJS.particles && pJS.particles.array) {
-              pJS.particles.array.forEach(particle => {
-                particle.radius = particle.radius_original * (1 - scrollPercent * 0.5);
-              });
+            // Adjust particle parameters based on scroll (only if significant change)
+            if (pJS && pJS.particles && pJS.particles.array && scrollPercent > 0.05) {
+              // Only update every nth particle for performance
+              for (let i = 0; i < pJS.particles.array.length; i += 3) {
+                const particle = pJS.particles.array[i];
+                if (particle && particle.radius_original) {
+                  particle.radius = particle.radius_original * (1 - scrollPercent * 0.3);
+                }
+              }
             }
           }
-        });
+        }, 100)); // 100ms debounce for scroll events
       }
     }
   }, 1000);

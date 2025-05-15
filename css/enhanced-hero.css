@@ -1,0 +1,323 @@
+/* Enhanced Hero Section Styles */
+.enhanced-hero {
+    height: 100vh;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--theme-dark-bg);
+    overflow: hidden;
+}
+
+/* Hero content */
+.enhanced-hero .hero-content {
+    position: relative;
+    z-index: 5;
+    text-align: center;
+    max-width: 850px;
+    padding: 0 2rem;
+    animation: fadeInUp 1.2s ease-out forwards; /* Slightly slower animation */
+}
+
+.enhanced-hero .hero-content h1 {
+    font-size: clamp(2.5rem, 8vw, 4rem);
+    letter-spacing: 0.2em; /* Increased letter spacing for better readability */
+    margin-bottom: 1.5rem;
+    color: var(--theme-light-text);
+    font-weight: 700;
+    text-shadow: 
+        0 0 1px rgba(255, 255, 255, 0.5),
+        0 0 4px rgba(var(--theme-accent-primary-rgb), 0.2); /* Refined shadow for clarity */
+    position: relative;
+    display: inline-block;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    padding: 0.1em 0; /* Add vertical padding to separate from other elements */
+}
+
+/* Improved particle background */
+.hero-background {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 1;
+}
+
+/* Data grid overlay */
+.data-grid-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        linear-gradient(rgba(var(--theme-accent-primary-rgb), 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(var(--theme-accent-primary-rgb), 0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    z-index: 2;
+    pointer-events: none;
+}
+
+/* Scanline effect */
+.hero-scanlines {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0),
+        rgba(0, 0, 0, 0) 2px,
+        rgba(0, 0, 0, 0.1) 3px,
+        rgba(0, 0, 0, 0) 3px
+    );
+    opacity: 0.3;
+    pointer-events: none;
+    z-index: 3;
+}
+
+/* Enhanced content styling */
+.hero-content {
+    position: relative;
+    z-index: 5;
+    text-align: center;
+    max-width: 850px;
+    padding: 0 2rem;
+    animation: fadeInUp 1s ease-out forwards;
+}
+
+.hero-content h1 {
+    font-size: clamp(2.5rem, 8vw, 4rem);
+    letter-spacing: 0.2em; /* Increased letter spacing for better readability */
+    margin-bottom: 1.5rem;
+    text-shadow: 
+        0 0 1px rgba(255, 255, 255, 0.5),
+        0 0 7px rgba(var(--theme-accent-primary-rgb), 0.2); /* Refined shadow for clarity */
+    position: relative;
+    display: inline-block;
+}
+
+.hero-content h1::after {
+    content: '';
+    position: absolute;
+    width: 70%;
+    height: 2px;
+    bottom: -10px;
+    left: 15%;
+    background: linear-gradient(
+        90deg, 
+        rgba(var(--theme-accent-primary-rgb), 0) 0%,
+        var(--theme-accent-primary) 50%, 
+        rgba(var(--theme-accent-primary-rgb), 0) 100%
+    );
+}
+
+/* Tagline styling with improved clarity */
+.enhanced-hero .hero-content .tagline {
+    font-size: clamp(1rem, 3vw, 1.4rem);
+    font-family: 'Source Code Pro', 'Roboto Mono', monospace;
+    letter-spacing: 0.25em;
+    margin-bottom: 2rem;
+    text-transform: uppercase;
+    color: var(--theme-accent-primary);
+    display: block;
+    position: relative;
+    padding: 0.5rem 0;
+    font-weight: 400;
+    /* Improved text shadow for better legibility */
+    text-shadow: 
+        0 0 1px rgba(255, 255, 255, 0.4),
+        0 0 3px rgba(var(--theme-accent-primary-rgb), 0.2);
+    /* Better font rendering */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.enhanced-hero .hero-content .tagline::before,
+.enhanced-hero .hero-content .tagline::after {
+    content: "";
+    position: absolute;
+    height: 1px;
+    width: 40px;
+    background: rgba(var(--theme-accent-primary-rgb), 0.5);
+    top: 50%;
+}
+
+.enhanced-hero .hero-content .tagline::before {
+    right: calc(100% + 1rem);
+}
+
+.enhanced-hero .hero-content .tagline::after {
+    left: calc(100% + 1rem);
+}
+
+.hero-content .btn {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    border-width: 1px;
+}
+
+.hero-content .btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        rgba(var(--theme-accent-primary-rgb), 0) 0%,
+        rgba(var(--theme-accent-primary-rgb), 0.15) 50%, /* Reduced shine intensity */
+        rgba(var(--theme-accent-primary-rgb), 0) 100%
+    );
+    animation: btn-shine 6s infinite; /* Doubled animation time */
+}
+
+.hero-content .btn:hover {
+    transform: translateY(-2px); /* Reduced movement */
+    box-shadow: 
+        0 4px 12px rgba(0, 0, 0, 0.2), /* Reduced shadow */
+        0 0 10px rgba(var(--theme-accent-primary-rgb), 0.3); /* Less intense glow */
+}
+
+/* Data points that float around the hero - reduced animation */
+.floating-data {
+    position: absolute;
+    z-index: 4;
+    font-family: 'Source Code Pro', monospace;
+    font-size: 12px;
+    color: var(--theme-accent-primary);
+    opacity: 0;
+    animation: floatData 25s infinite; /* Longer animation duration */
+    pointer-events: none;
+}
+
+.floating-data:nth-child(odd) {
+    color: var(--theme-accent-secondary);
+}
+
+/* Reduced number of visible floating data points (only showing 4 instead of 6) */
+.floating-data:nth-child(1) { top: 15%; left: 10%; animation-delay: 0s; }
+.floating-data:nth-child(2) { top: 25%; right: 15%; animation-delay: 6s; }
+.floating-data:nth-child(3) { top: 65%; left: 15%; animation-delay: 12s; }
+.floating-data:nth-child(4) { top: 75%; right: 10%; animation-delay: 18s; }
+.floating-data:nth-child(5), .floating-data:nth-child(6) { display: none; } /* Hide these for reduced visual noise */
+
+/* Corner interface elements */
+.corner-interface {
+    position: absolute;
+    z-index: 4;
+    width: 150px;
+    height: 150px;
+    pointer-events: none;
+}
+
+.corner-top-left {
+    top: 0;
+    left: 0;
+    border-top: 1px solid var(--theme-accent-secondary);
+    border-left: 1px solid var(--theme-accent-secondary);
+}
+
+.corner-top-right {
+    top: 0;
+    right: 0;
+    border-top: 1px solid var(--theme-accent-secondary);
+    border-right: 1px solid var(--theme-accent-secondary);
+}
+
+.corner-bottom-left {
+    bottom: 0;
+    left: 0;
+    border-bottom: 1px solid var(--theme-accent-secondary);
+    border-left: 1px solid var(--theme-accent-secondary);
+}
+
+.corner-bottom-right {
+    bottom: 0;
+    right: 0;
+    border-bottom: 1px solid var(--theme-accent-secondary);
+    border-right: 1px solid var(--theme-accent-secondary);
+}
+
+.corner-interface::before,
+.corner-interface::after {
+    content: '';
+    position: absolute;
+    background-color: var(--theme-accent-secondary);
+}
+
+.corner-interface::before {
+    width: 15px;
+    height: 1px;
+}
+
+.corner-interface::after {
+    width: 1px;
+    height: 15px;
+}
+
+.corner-top-left::before, .corner-top-left::after {
+    top: 0;
+    left: 0;
+}
+
+.corner-top-right::before {
+    top: 0;
+    right: 0;
+}
+
+.corner-top-right::after {
+    top: 0;
+    right: 0;
+}
+
+.corner-bottom-left::before {
+    bottom: 0;
+    left: 0;
+}
+
+.corner-bottom-left::after {
+    bottom: 0;
+    left: 0;
+}
+
+.corner-bottom-right::before {
+    bottom: 0;
+    right: 0;
+}
+
+.corner-bottom-right::after {
+    bottom: 0;
+    right: 0;
+}
+
+/* Animations - optimized for performance and reduced visual frenzy */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(15px); /* Reduced movement */
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes btn-shine {
+    0% { left: -100%; }
+    15% { left: 100%; } /* Slower shine effect */
+    100% { left: 100%; }
+}
+
+@keyframes floatData {
+    0% { opacity: 0; transform: translateY(0); }
+    10% { opacity: 0.5; } /* Reduced maximum opacity */
+    50% { opacity: 0.2; } /* Reduced middle opacity */
+    90% { opacity: 0.5; }
+    100% { opacity: 0; transform: translateY(-30px); } /* Reduced vertical movement */
+}

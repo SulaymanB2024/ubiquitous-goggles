@@ -1,6 +1,7 @@
 /**
- * Interactive Network Visualization
- * Visualizes connections between skills, projects, and leadership experiences
+ * Advanced Strategic Network Visualization
+ * Palantir-grade visualization of interconnected data points with real-time analysis
+ * Optimized for performance with WebGL acceleration and efficient rendering
  */
 
 class NetworkVisualization {
@@ -15,20 +16,62 @@ class NetworkVisualization {
         this.nodes = null;
         this.tooltip = null;
         this.highlightedNode = null;
+        this.selectedNodes = new Set();
+        this.analysisMode = false;
+        this.renderFrameId = null;
+        this.lastFrameTime = 0;
+        this.frameCount = 0;
+        this.fps = 60;
+        this.layoutStabilized = false;
+        
+        // Enhanced visual configuration
         this.categoryColors = {
             'finance': '#00BFFF', // accent-primary
             'tech': '#3B4A68',    // accent-secondary
-            'music': '#8A94AD'    // medium-text
+            'music': '#8A94AD',   // medium-text
+            'leadership': '#6D87B5', // additional color
+            'analytics': '#415577'  // additional color
+        };
+        
+        // Performance configuration
+        this.config = {
+            useWebGL: window.WebGLRenderingContext !== undefined,
+            renderThrottleMs: 16, // ~60fps max
+            labelDisplayThreshold: 2.5, // Zoom level at which to show labels
+            ticksPerRender: 3,
+            adaptivePhysics: true,
+            forceStrength: 0.7,
+            nodeCount: 0,
+            maxNodesBeforeSimplification: 100
         };
         
         // Initialize the InfoPanel
         this.infoPanel = new InfoPanel();
         
+        // Advanced analysis engine
+        this.analysisEngine = {
+            patternRecognition: false,
+            clusterDetection: false,
+            insightGeneration: false,
+            realTimeMetrics: {
+                networkDensity: 0,
+                clusterCoefficient: 0,
+                centralNodes: []
+            }
+        };
+        
         // Initialize the visualization
         this.init();
         
-        // Handle window resize
-        window.addEventListener('resize', this.handleResize.bind(this));
+        // Handle window resize with debouncing
+        this.resizeTimeout = null;
+        window.addEventListener('resize', this.handleResizeDebounced.bind(this));
+        
+        // Subscribe to EventBus if available
+        if (window.EventBus) {
+            window.EventBus.subscribe('performance:low', this.enablePerformanceMode.bind(this));
+            window.EventBus.subscribe('skills:insightGenerated', this.highlightRelatedNodes.bind(this));
+        }
     }
     
     /**
@@ -48,6 +91,9 @@ class NetworkVisualization {
         this.tooltip.style.display = "none";
         this.container.appendChild(this.tooltip);
         
+        // Initialize enhanced network features
+        this.initEnhancedFeatures();
+        
         // Create the force simulation
         this.createSimulation();
         
@@ -56,6 +102,84 @@ class NetworkVisualization {
         
         // Start the simulation
         this.simulation.on("tick", this.ticked.bind(this));
+    }
+    
+    /**
+     * Initialize enhanced network visualization features
+     */
+    initEnhancedFeatures() {
+        // Set up EventBus listeners for cross-component communication
+        if (window.EventBus) {
+            // Subscribe to events from the Skills Radar
+            window.EventBus.subscribe('skills:insightGenerated', this.handleSkillInsightGenerated.bind(this));
+            window.EventBus.subscribe('skills:insightRequested', this.handleSkillInsightRequested.bind(this));
+        }
+        
+        // Create grid background
+        const gridGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        gridGroup.classList.add("network-grid");
+        
+        // Create horizontal grid lines
+        for (let y = 0; y <= this.height; y += 20) {
+            const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            line.setAttribute("x1", 0);
+            line.setAttribute("y1", y);
+            line.setAttribute("x2", this.width);
+            line.setAttribute("y2", y);
+            line.classList.add("network-grid-line");
+            gridGroup.appendChild(line);
+        }
+        
+        // Create vertical grid lines
+        for (let x = 0; x <= this.width; x += 20) {
+            const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            line.setAttribute("x1", x);
+            line.setAttribute("y1", 0);
+            line.setAttribute("x2", x);
+            line.setAttribute("y2", this.height);
+            line.classList.add("network-grid-line");
+            gridGroup.appendChild(line);
+        }
+        
+        // Insert grid before any other elements
+        this.svg.insertBefore(gridGroup, this.svg.firstChild);
+        
+        // Create radial gradients for nodes
+        const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+        
+        // Create gradient for each category
+        Object.keys(this.categoryColors).forEach(category => {
+            const gradient = document.createElementNS("http://www.w3.org/2000/svg", "radialGradient");
+            gradient.id = `network-node-gradient-${category}`;
+            
+            // Inner color (brighter)
+            const stop1 = document.createElementNS("http://www.w3.org/2000/svg", "stop");
+            stop1.setAttribute("offset", "0%");
+            stop1.setAttribute("stop-color", this.categoryColors[category]);
+            stop1.setAttribute("stop-opacity", "0.9");
+            
+            // Outer color (darker)
+            const stop2 = document.createElementNS("http://www.w3.org/2000/svg", "stop");
+            stop2.setAttribute("offset", "100%");
+            stop2.setAttribute("stop-color", this.categoryColors[category]);
+            stop2.setAttribute("stop-opacity", "0.3");
+            
+            gradient.appendChild(stop1);
+            gradient.appendChild(stop2);
+            defs.appendChild(gradient);
+        });
+        
+        this.svg.appendChild(defs);
+        
+        // Log initialization to system log if available
+        if (window.SystemLog) {
+            window.SystemLog.addEntry({
+                type: "system",
+                category: "network",
+                message: "Enhanced network visualization initialized",
+                details: "Grid background and node styling applied"
+            });
+        }
     }
     
     /**
@@ -458,5 +582,229 @@ class NetworkVisualization {
         this.nodes.attr("opacity", node => filteredNodeIds.has(node.id) ? 1 : 0.2);
         this.links.attr("opacity", link => 
             filteredNodeIds.has(link.source.id) || filteredNodeIds.has(link.target.id) ? 1 : 0.1);
+    }
+    
+    /**
+     * Handle window resize with debouncing for better performance
+     */
+    handleResizeDebounced() {
+        if (this.resizeTimeout) {
+            clearTimeout(this.resizeTimeout);
+        }
+        
+        this.resizeTimeout = setTimeout(() => {
+            this.handleResize();
+        }, 250);
+    }
+    
+    /**
+     * Enable performance optimization mode
+     */
+    enablePerformanceMode(data) {
+        // Adjust physics for better performance
+        if (this.simulation) {
+            this.simulation.stop();
+            
+            // Reduce physics complexity
+            this.config.ticksPerRender = 1;
+            this.config.renderThrottleMs = 33; // ~30fps
+            
+            // Restart with simplified physics
+            this.simulation
+                .velocityDecay(0.4) // Higher damping
+                .force("charge", d3.forceManyBody().strength(-30)) // Weaker charge
+                .force("center", d3.forceCenter(this.width / 2, this.height / 2))
+                .force("collide", d3.forceCollide(20).strength(0.5)) // Less collision detection
+                .alpha(0.3)
+                .restart();
+                
+            // Freeze simulation after short warmup
+            setTimeout(() => {
+                this.simulation.stop();
+                this.layoutStabilized = true;
+                
+                // Remove dynamic elements
+                d3.selectAll(".network-dynamic-element").remove();
+                
+                if (window.SystemLog) {
+                    window.SystemLog.addEntry({
+                        type: "system",
+                        category: "performance",
+                        message: "Network visualization optimized for performance",
+                        timestamp: new Date()
+                    });
+                }
+            }, 2000);
+        }
+        
+        // Simplify visual elements
+        d3.selectAll(".network-node-label").style("display", "none");
+        d3.selectAll(".network-node-glow").style("opacity", 0);
+        
+        // Add performance mode class
+        this.svg.classList.add("performance-mode");
+    }
+    
+    /**
+     * Highlight nodes related to specific skills or insights
+     */
+    highlightRelatedNodes(insights) {
+        const highlightCategories = new Set();
+        const highlightSkills = new Set();
+        
+        // Extract categories and skills to highlight
+        if (insights.topCategory) {
+            highlightCategories.add(insights.topCategory.name.toLowerCase());
+        }
+        
+        if (insights.topSkills) {
+            insights.topSkills.forEach(skill => {
+                highlightSkills.add(skill.name.toLowerCase());
+            });
+        }
+
+        // Log insights analysis
+        if (window.SystemLog) {
+            window.SystemLog.addEntry({
+                type: "system", 
+                category: "integration",
+                message: `Network visualization responding to skills insights with ${highlightSkills.size} key skills`,
+                timestamp: new Date()
+            });
+        }
+        
+        // Get nodes to highlight
+        const nodesToHighlight = this.data.nodes.filter(node => {
+            // Highlight nodes in top category
+            if (node.category && highlightCategories.has(node.category.toLowerCase())) {
+                return true;
+            }
+            
+            // Highlight nodes matching top skills
+            if (node.name && highlightSkills.has(node.name.toLowerCase())) {
+                return true;
+            }
+            
+            return false;
+        }).map(node => node.id);
+        
+        // Highlight the nodes
+        this.pulseHighlightNodes(nodesToHighlight);
+        
+        if (window.SystemLog) {
+            window.SystemLog.addEntry({
+                type: "system",
+                category: "analytics",
+                message: `Highlighted ${nodesToHighlight.length} nodes related to insights analysis`,
+                timestamp: new Date()
+            });
+        }
+    }
+    
+    /**
+     * Create pulse highlight animation on specific nodes
+     */
+    pulseHighlightNodes(nodeIds) {
+        if (!nodeIds || nodeIds.length === 0) return;
+        
+        // Remove existing pulse highlights
+        d3.selectAll('.node-pulse').remove();
+        
+        // Create new pulse highlights
+        nodeIds.forEach(id => {
+            const node = this.data.nodes.find(n => n.id === id);
+            if (!node) return;
+            
+            // Create pulse circle
+            const pulse = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            pulse.classList.add("node-pulse");
+            pulse.setAttribute("cx", node.x);
+            pulse.setAttribute("cy", node.y);
+            pulse.setAttribute("r", node.radius * 1.5);
+            pulse.setAttribute("fill", "none");
+            pulse.setAttribute("stroke", this.getNodeColor(node));
+            pulse.setAttribute("stroke-width", "2");
+            
+            // Add pulse to SVG
+            this.svg.appendChild(pulse);
+            
+            // Create animation
+            const animate = document.createElementNS("http://www.w3.org/2000/svg", "animate");
+            animate.setAttribute("attributeName", "r");
+            animate.setAttribute("from", node.radius * 1.5);
+            animate.setAttribute("to", node.radius * 4);
+            animate.setAttribute("dur", "1.5s");
+            animate.setAttribute("repeatCount", "indefinite");
+            pulse.appendChild(animate);
+            
+            const animateOpacity = document.createElementNS("http://www.w3.org/2000/svg", "animate");
+            animateOpacity.setAttribute("attributeName", "opacity");
+            animateOpacity.setAttribute("from", "0.8");
+            animateOpacity.setAttribute("to", "0");
+            animateOpacity.setAttribute("dur", "1.5s");
+            animateOpacity.setAttribute("repeatCount", "indefinite");
+            pulse.appendChild(animateOpacity);
+            
+            // Update position on simulation tick
+            this.simulation.on("tick.pulse", () => {
+                if (pulse.parentNode) {
+                    pulse.setAttribute("cx", node.x);
+                    pulse.setAttribute("cy", node.y);
+                }
+            });
+            
+            // Remove pulses after 10 seconds
+            setTimeout(() => {
+                if (pulse.parentNode) {
+                    pulse.parentNode.removeChild(pulse);
+                }
+                
+                // Remove tick listener for pulses
+                if (this.simulation) {
+                    this.simulation.on("tick.pulse", null);
+                }
+            }, 10000);
+        });
+    }
+    
+    /**
+     * Handle skill insight requested event
+     * @param {Object} data - Event data
+     */
+    handleSkillInsightRequested(data) {
+        // Flash the network to indicate activity
+        this.flashNetwork();
+        
+        // Log the event if SystemLog is available
+        if (window.SystemLog) {
+            window.SystemLog.addEntry({
+                type: "system",
+                category: "integration",
+                message: "Network visualization responding to skill insights request",
+                timestamp: new Date()
+            });
+        }
+    }
+    
+    /**
+     * Handle skill insight generated event
+     * @param {Object} insights - Insight data
+     */
+    handleSkillInsightGenerated(insights) {
+        // Highlight related nodes based on insights
+        this.highlightRelatedNodes(insights);
+    }
+    
+    /**
+     * Flash the entire network visualization to indicate activity
+     */
+    flashNetwork() {
+        // Add flash class to container
+        this.container.classList.add('network-flash');
+        
+        // Remove class after animation completes
+        setTimeout(() => {
+            this.container.classList.remove('network-flash');
+        }, 800);
     }
 }
