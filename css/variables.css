@@ -1,0 +1,31 @@
+/* CSS Variables - "Night Operations" Color Scheme */
+:root {
+    /* Colors - Dark Theme */
+    --theme-dark-bg: #0A0F1F; /* Deepest background - "The void of the OS" */
+    --theme-dark-bg-rgb: 10, 15, 31;
+    --theme-dark-surface: #171C2A; /* Slightly lighter for primary content surfaces */
+    --theme-dark-surface-alt: #202638; /* For secondary surfaces or hover states */
+    --theme-light-text: #E0E7FF; /* Primary text - slightly cool off-white */
+    --theme-medium-text: #8A94AD; /* Secondary text, subtitles */
+    --theme-subtle-text: #5F6B85; /* Faintest text, metadata, disabled states */
+    --theme-accent-primary: #00BFFF; /* Deep Sky Blue / Electric Blue - primary accent */
+    --theme-accent-primary-rgb: 0, 191, 255; /* For use with alpha transparency */
+    --theme-accent-secondary: #3B4A68; /* For borders, inactive UI, subtle lines */
+    --theme-accent-hover: #33CFFF; /* Brighter hover for primary accent */
+    --theme-border-dark: var(--theme-accent-secondary); /* Primary border color */
+    --theme-border-light: #5F6B85; /* Lighter border for subtle divisions or hovers */
+    --theme-error: #FF3B30; /* iOS-style red for errors */
+    
+    /* Typography Scale - Base Sizes */
+    --font-hero: clamp(3.5rem, 8vw, 6rem);
+    --font-h2: clamp(1.75rem, 5vw, 2.25rem);
+    --font-h3: clamp(1.2rem, 4vw, 1.4rem);
+    --font-h4: clamp(1rem, 3.5vw, 1.15rem);
+    --font-body: clamp(0.9rem, 2.5vw, 1.05rem);
+    --font-small: 0.8rem;
+    
+    /* Spacing / Layout */
+    --section-spacing: clamp(4rem, 10vh, 6rem);
+    --container-max-width: 1280px;
+    --navbar-height: 70px;
+}

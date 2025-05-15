@@ -1,0 +1,155 @@
+/* Timeline Filter Styles */
+
+.timeline-container {
+  position: relative;
+  margin: 2rem 0;
+  padding: 0 1.5rem;
+}
+
+.timeline-filter {
+  position: relative;
+  padding: 2rem 0;
+}
+
+.timeline-track {
+  position: relative;
+  height: 8px; /* Thickened track */
+  width: 100%;
+  background-color: var(--theme-accent-secondary);
+  border-radius: 4px;
+  margin: 2rem 0;
+  cursor: pointer;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.timeline-selected-range {
+  position: absolute;
+  height: 8px; /* Match track height */
+  background-color: var(--theme-accent-primary);
+  box-shadow: 0 0 5px rgba(var(--theme-accent-primary-rgb), 0.7);
+  top: 0;
+  border-radius: 4px;
+}
+
+.timeline-handle {
+  position: absolute;
+  width: 16px; /* Increased size */
+  height: 16px; /* Increased size */
+  background-color: var(--theme-accent-primary);
+  border: 2px solid var(--theme-dark-bg);
+  border-radius: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  cursor: grab;
+  transition: all 0.2s ease;
+  box-shadow: 0 0 0 2px rgba(var(--theme-accent-primary-rgb), 0.3);
+  z-index: 2;
+}
+
+.timeline-handle:hover,
+.timeline-handle:focus {
+  background-color: var(--theme-accent-hover);
+  transform: translate(-50%, -50%) scale(1.2);
+  box-shadow: 0 0 4px 3px rgba(var(--theme-accent-primary-rgb), 0.4);
+}
+
+.timeline-handle.dragging {
+  cursor: grabbing;
+  transform: translate(-50%, -50%) scale(1.3);
+  box-shadow: 0 0 4px 4px rgba(var(--theme-accent-primary-rgb), 0.5);
+}
+
+/* Focus styles for keyboard navigation */
+.timeline-handle:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(var(--theme-accent-primary-rgb), 0.6);
+}
+
+.timeline-ticks {
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: 0;
+  margin-top: 0.5rem;
+}
+
+.timeline-tick {
+  position: relative;
+  text-align: center;
+  flex: 1;
+}
+
+.timeline-tick::before {
+  content: '';
+  position: absolute;
+  width: 1px;
+  height: 5px;
+  background-color: var(--theme-accent-secondary);
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.timeline-tick-label {
+  font-size: 0.75rem;
+  color: var(--theme-medium-text);
+  white-space: nowrap;
+  position: relative;
+  top: 8px; /* Adjust position to account for thicker track */
+  transition: color 0.2s ease;
+}
+
+/* Highlight active range tick labels */
+.timeline-tick.active .timeline-tick-label {
+  color: var(--theme-accent-primary);
+  font-weight: bold;
+}
+
+.timeline-value-display {
+  text-align: center;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--theme-accent-primary);
+  margin-top: 1.5rem;
+}
+
+/* Tooltip showing current value */
+.timeline-handle::after {
+  content: attr(aria-valuenow);
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--theme-dark-surface);
+  color: var(--theme-light-text);
+  font-size: 0.7rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 3px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.timeline-handle:hover::after,
+.timeline-handle:focus::after,
+.timeline-handle.dragging::after {
+  opacity: 1;
+}
+
+/* Mobile styles */
+@media (max-width: 768px) {
+  .timeline-tick-label {
+    font-size: 0.6rem;
+  }
+  
+  .timeline-tick:nth-child(odd) .timeline-tick-label {
+    display: none;
+  }
+  
+  .timeline-handle {
+    width: 0.8rem;
+    height: 0.8rem;
+  }
+}

@@ -1,0 +1,231 @@
+/* 
+ * System Log Panel Styles
+ * Real-time log entries in the bottom right corner
+ */
+
+.system-log-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 380px;
+    max-height: 300px;
+    background-color: rgba(var(--theme-dark-surface-rgb), 0.85);
+    backdrop-filter: blur(5px);
+    border: 1px solid var(--theme-accent-secondary);
+    border-radius: 6px;
+    z-index: 900;
+    overflow: hidden;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    transform: translateY(380px);
+    opacity: 0;
+}
+
+.system-log-container.collapsed {
+    transform: translateY(calc(100% - 40px));
+    opacity: 1;
+}
+
+.system-log-container.expanded {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.system-log-header {
+    padding: 8px 12px;
+    background-color: var(--theme-dark-surface);
+    border-bottom: 1px solid var(--theme-accent-secondary);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+}
+
+.system-log-title {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 12px;
+    color: var(--theme-accent-primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.system-log-title i {
+    font-size: 14px;
+}
+
+.system-log-status {
+    height: 8px;
+    width: 8px;
+    border-radius: 50%;
+    background-color: var(--theme-accent-primary);
+    display: inline-block;
+    margin-right: 6px;
+    position: relative;
+}
+
+.system-log-status::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    border-radius: 50%;
+    background-color: var(--theme-accent-primary);
+    opacity: 0.4;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 0.4;
+    }
+    50% {
+        transform: scale(1.5);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 0.4;
+    }
+}
+
+.system-log-controls {
+    display: flex;
+    gap: 8px;
+}
+
+.system-log-control {
+    background: none;
+    border: none;
+    color: var(--theme-medium-text);
+    cursor: pointer;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 3px;
+    transition: all 0.2s ease;
+}
+
+.system-log-control:hover {
+    color: var(--theme-light-text);
+    background-color: rgba(var(--theme-accent-secondary-rgb), 0.3);
+}
+
+.system-log-content {
+    padding: 12px;
+    max-height: 240px;
+    overflow-y: auto;
+}
+
+.system-log-entry {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 12px;
+    line-height: 1.5;
+    margin-bottom: 6px;
+    padding-left: 18px;
+    position: relative;
+    opacity: 0;
+    transform: translateY(10px);
+    animation: fadeInLog 0.3s ease forwards;
+}
+
+@keyframes fadeInLog {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.system-log-entry::before {
+    content: '>';
+    position: absolute;
+    left: 0;
+    color: var(--theme-accent-primary);
+}
+
+.system-log-entry-time {
+    color: var(--theme-accent-secondary);
+    margin-right: 6px;
+}
+
+.system-log-entry-type {
+    color: var(--theme-medium-text);
+    margin-right: 6px;
+}
+
+.system-log-entry-message {
+    color: var(--theme-light-text);
+}
+
+.system-log-entry.type-error .system-log-entry-type {
+    color: #FF3B30;
+}
+
+.system-log-entry.type-warn .system-log-entry-type {
+    color: #FF9500;
+}
+
+.system-log-entry.type-info .system-log-entry-type {
+    color: #00BFFF;
+}
+
+.system-log-entry.type-success .system-log-entry-type {
+    color: #30D158;
+}
+
+/* Custom scrollbar for system log */
+.system-log-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.system-log-content::-webkit-scrollbar-track {
+    background: var(--theme-dark-surface);
+}
+
+.system-log-content::-webkit-scrollbar-thumb {
+    background-color: var(--theme-accent-secondary);
+    border-radius: 6px;
+}
+
+.system-log-filters {
+    display: flex;
+    padding: 0 12px 10px;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.system-log-filter {
+    background-color: rgba(var(--theme-accent-secondary-rgb), 0.2);
+    border: 1px solid rgba(var(--theme-accent-secondary-rgb), 0.3);
+    border-radius: 3px;
+    padding: 3px 8px;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 10px;
+    color: var(--theme-medium-text);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.system-log-filter:hover {
+    background-color: rgba(var(--theme-accent-secondary-rgb), 0.3);
+    color: var(--theme-light-text);
+}
+
+.system-log-filter.active {
+    background-color: rgba(var(--theme-accent-primary-rgb), 0.2);
+    border-color: rgba(var(--theme-accent-primary-rgb), 0.6);
+    color: var(--theme-accent-primary);
+}
+
+.system-log-empty {
+    padding: 20px;
+    text-align: center;
+    color: var(--theme-medium-text);
+    font-style: italic;
+}

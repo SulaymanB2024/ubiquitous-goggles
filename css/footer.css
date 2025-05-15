@@ -1,0 +1,31 @@
+/* Footer Styles */
+footer {
+    background-color: #000000;
+    padding: 1rem 0;
+    margin-top: auto;
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.status-text {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--theme-subtle-text);
+}
+
+.footer-copyright {
+    font-size: 0.75rem;
+    color: var(--theme-subtle-text);
+}
+
+@media (max-width: 768px) {
+    .footer-content {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+}

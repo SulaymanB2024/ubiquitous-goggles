@@ -1,0 +1,193 @@
+/* Leadership Section Styles */
+.section-leadership {
+    background-color: var(--theme-dark-bg);
+    position: relative;
+}
+
+.leadership-intro {
+    margin-bottom: 3rem;
+    max-width: 800px;
+}
+
+/* Timeline Styles */
+.leadership-timeline {
+    position: relative;
+    max-width: 1000px;
+    margin: 0 auto 4rem;
+    padding-left: 2rem;
+}
+
+.leadership-timeline::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 8px;
+    width: 2px;
+    background-color: var(--theme-accent-secondary);
+}
+
+.timeline-item {
+    position: relative;
+    padding-bottom: 2.5rem;
+}
+
+.timeline-marker {
+    position: absolute;
+    top: 0;
+    left: -2rem;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background-color: var(--theme-dark-surface);
+    border: 2px solid var(--theme-accent-primary);
+    z-index: 5;
+}
+
+.timeline-content {
+    position: relative;
+    padding: 1.5rem;
+    background-color: var(--theme-dark-surface);
+    border: 1px solid var(--theme-accent-secondary);
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.timeline-content:hover {
+    border-color: var(--theme-accent-primary);
+    box-shadow: 0 8px 25px rgba(var(--theme-accent-primary-rgb), 0.1);
+}
+
+.timeline-date {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--theme-accent-primary);
+    margin-bottom: 0.5rem;
+}
+
+.timeline-title {
+    margin-bottom: 0.25rem;
+}
+
+.timeline-org {
+    font-size: 0.9rem;
+    color: var(--theme-medium-text);
+    font-weight: 500;
+    margin-bottom: 1rem;
+}
+
+.timeline-description {
+    margin-bottom: 1.25rem;
+    font-size: 0.9rem;
+}
+
+.achievement-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.achievement-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+.achievement-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 26px;
+    height: 26px;
+    background-color: rgba(var(--theme-accent-primary-rgb), 0.1);
+    color: var(--theme-accent-primary);
+    border-radius: 50%;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+}
+
+.achievement-item span {
+    font-size: 0.85rem;
+    color: var(--theme-medium-text);
+    line-height: 1.5;
+}
+
+.timeline-end-node {
+    position: relative;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: var(--theme-accent-primary);
+    margin-left: -1.9rem;
+    z-index: 5;
+}
+
+/* Leadership Principles Grid */
+.leadership-principles {
+    margin-top: 4rem;
+}
+
+.principles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.principle-item {
+    background-color: var(--theme-dark-surface);
+    border: 1px solid var(--theme-accent-secondary);
+    border-radius: 6px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.principle-item:hover {
+    transform: translateY(-5px);
+    border-color: var(--theme-accent-primary);
+    box-shadow: 0 10px 25px rgba(var(--theme-accent-primary-rgb), 0.08);
+}
+
+.principle-icon {
+    color: var(--theme-accent-primary);
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.principle-item h4 {
+    margin-bottom: 0.75rem;
+}
+
+.principle-item p {
+    font-size: 0.9rem;
+    margin-bottom: 0;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .leadership-timeline {
+        padding-left: 1.5rem;
+    }
+    
+    .timeline-marker {
+        left: -1.5rem;
+        width: 15px;
+        height: 15px;
+    }
+    
+    .timeline-end-node {
+        width: 10px;
+        height: 10px;
+        margin-left: -1.4rem;
+    }
+    
+    .timeline-content {
+        padding: 1.25rem;
+    }
+    
+    .principle-item {
+        padding: 1.25rem;
+    }
+}

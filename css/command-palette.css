@@ -1,0 +1,302 @@
+/* 
+ * Command Palette Styles
+ * Global command search interface triggered by Ctrl+K
+ */
+
+.command-palette-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(10, 15, 31, 0.85);
+    backdrop-filter: blur(8px);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.command-palette-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.command-palette-container {
+    width: 600px;
+    max-width: 90%;
+    margin-top: 100px;
+    transform: translateY(-20px) scale(0.98);
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    opacity: 0;
+    transform-origin: top center;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+.command-palette-overlay.active .command-palette-container {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+}
+
+.command-palette-header {
+    background-color: var(--theme-dark-surface);
+    border: 1px solid var(--theme-accent-secondary);
+    border-bottom: none;
+    padding: 12px 16px;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.command-palette-icon {
+    color: var(--theme-accent-primary);
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+}
+
+.command-palette-search {
+    flex-grow: 1;
+    background-color: transparent;
+    border: none;
+    color: var(--theme-light-text);
+    font-family: 'Roboto Mono', monospace;
+    font-size: 16px;
+    outline: none;
+    caret-color: var(--theme-accent-primary);
+}
+
+.command-palette-search::placeholder {
+    color: var(--theme-medium-text);
+}
+
+.command-palette-shortcut {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 12px;
+    color: var(--theme-accent-secondary);
+    padding: 3px 6px;
+    border: 1px solid var(--theme-accent-secondary);
+    border-radius: 3px;
+    margin-left: 8px;
+}
+
+/* Keyboard shortcut indicators in header */
+.command-palette-header-shortcut {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    margin-left: auto;
+}
+
+.command-palette-header-shortcut-key {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 11px;
+    color: var(--theme-medium-text);
+    background-color: rgba(var(--theme-accent-secondary-rgb), 0.1);
+    padding: 2px 5px;
+    border-radius: 3px;
+    border: 1px solid rgba(var(--theme-accent-secondary-rgb), 0.3);
+}
+
+.command-palette-header-shortcut-separator {
+    color: var(--theme-medium-text);
+    font-size: 10px;
+    opacity: 0.7;
+}
+
+.command-palette-results {
+    background-color: var(--theme-dark-surface);
+    border: 1px solid var(--theme-accent-secondary);
+    border-top: 1px solid rgba(var(--theme-accent-secondary-rgb), 0.3);
+    max-height: 400px;
+    overflow-y: auto;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+}
+
+.command-palette-section {
+    padding: 8px 0;
+}
+
+.command-palette-section-title {
+    padding: 6px 16px;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 12px;
+    color: var(--theme-medium-text);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.command-palette-item {
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.command-palette-item:hover,
+.command-palette-item.selected {
+    background-color: rgba(var(--theme-accent-primary-rgb), 0.15);
+}
+
+/* Glow effect for selected item */
+@keyframes selectedItemGlow {
+    0% { box-shadow: 0 0 0 0 rgba(var(--theme-accent-primary-rgb), 0.3); }
+    70% { box-shadow: 0 0 0 6px rgba(var(--theme-accent-primary-rgb), 0); }
+    100% { box-shadow: 0 0 0 0 rgba(var(--theme-accent-primary-rgb), 0); }
+}
+
+.command-palette-item.selected {
+    border-left: 2px solid var(--theme-accent-primary);
+    box-shadow: inset 0 0 0 1px rgba(var(--theme-accent-primary-rgb), 0.3);
+    animation: selectedItemGlow 2s infinite ease-in-out;
+}
+
+.command-palette-item-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.command-palette-item-icon {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--theme-medium-text);
+    transition: color 0.2s ease;
+}
+
+.command-palette-item:hover .command-palette-item-icon,
+.command-palette-item.selected .command-palette-item-icon {
+    color: var(--theme-accent-primary);
+}
+
+.command-palette-item-title {
+    color: var(--theme-light-text);
+    font-size: 14px;
+}
+
+.command-palette-item-description {
+    color: var(--theme-medium-text);
+    font-size: 12px;
+    margin-top: 2px;
+}
+
+.command-palette-item-shortcut {
+    display: flex;
+    gap: 4px;
+}
+
+.command-palette-key {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 11px;
+    color: var(--theme-medium-text);
+    background-color: rgba(var(--theme-accent-secondary-rgb), 0.2);
+    padding: 2px 5px;
+    border-radius: 3px;
+    border: 1px solid rgba(var(--theme-accent-secondary-rgb), 0.3);
+    transition: all 0.2s ease;
+}
+
+.command-palette-item.selected .command-palette-key {
+    background-color: rgba(var(--theme-accent-primary-rgb), 0.2);
+    border: 1px solid rgba(var(--theme-accent-primary-rgb), 0.4);
+    color: var(--theme-accent-primary);
+}
+
+.command-palette-empty {
+    padding: 24px 16px;
+    text-align: center;
+    color: var(--theme-medium-text);
+    font-size: 14px;
+}
+
+/* Custom scrollbar for command palette */
+.command-palette-results::-webkit-scrollbar {
+    width: 6px;
+}
+
+.command-palette-results::-webkit-scrollbar-track {
+    background: var(--theme-dark-surface);
+}
+
+.command-palette-results::-webkit-scrollbar-thumb {
+    background-color: var(--theme-accent-secondary);
+    border-radius: 6px;
+}
+
+/* Animation for command items */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.command-palette-item {
+    animation: fadeInUp 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    transform-origin: top center;
+}
+
+.command-palette-item:nth-child(1) { animation-delay: 0.05s; }
+.command-palette-item:nth-child(2) { animation-delay: 0.1s; }
+.command-palette-item:nth-child(3) { animation-delay: 0.15s; }
+.command-palette-item:nth-child(4) { animation-delay: 0.2s; }
+.command-palette-item:nth-child(5) { animation-delay: 0.25s; }
+.command-palette-item:nth-child(6) { animation-delay: 0.3s; }
+.command-palette-item:nth-child(7) { animation-delay: 0.35s; }
+.command-palette-item:nth-child(8) { animation-delay: 0.4s; }
+
+/* System logging indicator */
+.command-palette-log {
+    position: absolute;
+    bottom: 12px;
+    right: 20px;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 11px;
+    color: var(--theme-accent-primary);
+    opacity: 0.7;
+}
+
+/* Close button styles */
+.command-palette-close {
+    font-size: 16px;
+    background: transparent;
+    border: none;
+    color: var(--theme-medium-text);
+    cursor: pointer;
+    padding: 4px 8px;
+    margin-left: 8px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.command-palette-close:hover,
+.command-palette-close:focus {
+    color: var(--theme-light-text);
+    background-color: rgba(var(--theme-accent-primary-rgb), 0.2);
+    outline: none;
+}
+
+.command-palette-close:focus {
+    box-shadow: 0 0 0 2px rgba(var(--theme-accent-primary-rgb), 0.4);
+}
+
+.command-palette-close:active {
+    transform: scale(0.95);
+}

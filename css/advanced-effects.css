@@ -1,0 +1,547 @@
+/* Advanced Visual Effects CSS */
+
+/* Text shimmer/glow effect */
+@keyframes textShimmer {
+  0% {
+    text-shadow: 0 0 4px rgba(var(--theme-accent-primary-rgb), 0.1), 
+                 0 0 10px rgba(var(--theme-accent-primary-rgb), 0.1);
+  }
+  50% {
+    text-shadow: 0 0 8px rgba(var(--theme-accent-primary-rgb), 0.3), 
+                 0 0 20px rgba(var(--theme-accent-primary-rgb), 0.2);
+  }
+  100% {
+    text-shadow: 0 0 4px rgba(var(--theme-accent-primary-rgb), 0.1), 
+                 0 0 10px rgba(var(--theme-accent-primary-rgb), 0.1);
+  }
+}
+
+.hero-content h1, .section-title {
+  animation: textShimmer 4s infinite ease-in-out;
+}
+
+/* Subtle grid background pattern */
+.grid-bg-pattern {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image:
+    linear-gradient(to right, var(--theme-accent-secondary) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--theme-accent-secondary) 1px, transparent 1px);
+  background-size: 40px 40px;
+  z-index: 0;
+}
+
+/* System boot sequence animation */
+@keyframes bootFlash {
+  0% { opacity: 0; }
+  5% { opacity: 1; }
+  10% { opacity: 0.8; }
+  12% { opacity: 1; }
+  17% { opacity: 0.3; }
+  20% { opacity: 1; }
+  100% { opacity: 1; }
+}
+
+@keyframes bootTextFlash {
+  0% { opacity: 0; visibility: visible; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { opacity: 0; visibility: hidden; }
+}
+
+.boot-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--theme-dark-bg);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  animation: bootFlash 2.5s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+  transition: opacity 0.5s ease;
+}
+
+.boot-text {
+  font-family: 'Roboto Mono', monospace;
+  color: var(--theme-accent-primary);
+  font-size: clamp(0.9rem, 3vw, 1.2rem);
+  text-align: left;
+  max-width: 600px;
+  width: 80%;
+  line-height: 1.5;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.boot-text-1 {
+  animation: bootTextFlash 1.5s ease-out forwards;
+  animation-delay: 0.2s;
+}
+
+.boot-text-2 {
+  animation: bootTextFlash 1.5s ease-out forwards;
+  animation-delay: 1.2s;
+}
+
+.boot-text-3 {
+  animation: bootTextFlash 1s ease-out forwards;
+  animation-delay: 2s;
+}
+
+.boot-loader {
+  margin-top: 20px;
+  width: 200px;
+  height: 4px;
+  background: rgba(var(--theme-accent-primary-rgb), 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.boot-loader::after {
+  content: "";
+  position: absolute;
+  left: -50%;
+  width: 50%;
+  height: 100%;
+  background-color: var(--theme-accent-primary);
+  animation: loading 1.5s infinite ease;
+  animation-delay: 0.8s;
+}
+
+@keyframes loading {
+  0% { left: -50%; }
+  100% { left: 100%; }
+}
+
+/* System Log Animation */
+.system-log {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 300px;
+  max-height: 160px;
+  background-color: rgba(var(--theme-dark-bg-rgb), 0.9);
+  border: 1px solid var(--theme-accent-secondary);
+  border-radius: 4px;
+  padding: 10px;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--theme-medium-text);
+  overflow: hidden;
+  z-index: 100;
+  backdrop-filter: blur(8px);
+  opacity: 0.9;
+  transition: opacity 0.3s ease;
+  box-shadow: 0 0 15px rgba(var(--theme-accent-primary-rgb), 0.2);
+}
+
+.system-log:hover {
+  opacity: 1;
+}
+
+.log-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--theme-border-dark);
+}
+
+.log-title {
+  color: var(--theme-light-text);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.75rem;
+}
+
+.log-toggle {
+  color: var(--theme-accent-primary);
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.log-content {
+  height: 120px;
+  overflow-y: hidden;
+  position: relative;
+}
+
+.log-entry {
+  margin-bottom: 4px;
+  transition: opacity 0.5s ease;
+}
+
+.log-timestamp {
+  color: var(--theme-accent-primary);
+  margin-right: 5px;
+}
+
+.log-message {
+  color: var(--theme-medium-text);
+}
+
+.log-message.system {
+  color: var(--theme-light-text);
+}
+
+.log-message.warning {
+  color: #FFC107;
+}
+
+.log-message.error {
+  color: var(--theme-error);
+}
+
+/* Data Flow Lines (across sections) */
+.data-flow-line {
+  position: absolute;
+  width: 1px;
+  background: linear-gradient(to bottom, 
+    transparent 0%, 
+    var(--theme-accent-secondary) 15%, 
+    var(--theme-accent-primary) 50%, 
+    var(--theme-accent-secondary) 85%, 
+    transparent 100%);
+  opacity: 0.4;
+  z-index: 1;
+  animation: pulseOpacity 4s infinite ease-in-out;
+}
+
+@keyframes pulseOpacity {
+  0% { opacity: 0.2; }
+  50% { opacity: 0.5; }
+  100% { opacity: 0.2; }
+}
+
+.data-flow-line.left {
+  left: 10%;
+  top: 0;
+  height: 100%;
+}
+
+.data-flow-line.right {
+  right: 10%;
+  top: 0;
+  height: 100%;
+}
+
+.data-flow-line.center {
+  left: 50%;
+  top: 0;
+  height: 100%;
+}
+
+/* Profile image scan line effect */
+.image-scan-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: var(--theme-accent-primary);
+  box-shadow: 0 0 10px 3px rgba(var(--theme-accent-primary-rgb), 0.5);
+  opacity: 0.7;
+  z-index: 2;
+  animation: scanline 3s linear infinite;
+}
+
+@keyframes scanline {
+  0% {
+    top: 0%;
+  }
+  100% {
+    top: 100%;
+  }
+}
+
+.about-image {
+  position: relative;
+  overflow: hidden;
+}
+
+.about-image::before {
+  content: "";
+  position: absolute;
+  top: -10%;
+  left: -10%;
+  width: 120%;
+  height: 120%;
+  background: linear-gradient(
+    135deg,
+    rgba(var(--theme-accent-primary-rgb), 0.05) 0%,
+    rgba(var(--theme-accent-primary-rgb), 0) 50%,
+    rgba(var(--theme-accent-primary-rgb), 0.05) 100%
+  );
+  z-index: 1;
+  animation: glowRotate 15s linear infinite;
+}
+
+@keyframes glowRotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Enhanced hover effects for project cards */
+.project-card:hover .project-image img {
+  transform: scale(1.05);
+  filter: brightness(1.2) contrast(1.1) grayscale(0%);
+}
+
+.project-card:hover .image-overlay {
+  background: linear-gradient(
+    135deg,
+    rgba(0, 191, 255, 0.15) 0%,
+    rgba(10, 15, 31, 0.8) 100%
+  );
+}
+
+/* Pulse effect on accent elements */
+@keyframes pulseBorder {
+  0% { border-color: var(--theme-accent-secondary); }
+  50% { border-color: var(--theme-accent-primary); }
+  100% { border-color: var(--theme-accent-secondary); }
+}
+
+.skill-category {
+  position: relative;
+  overflow: hidden;
+}
+
+.skill-category::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(to right, transparent, var(--theme-accent-primary), transparent);
+  animation: pulseBorder 3s infinite ease-in-out;
+  opacity: 0.5;
+}
+
+/* Enhanced form button effect */
+.btn-primary[type="submit"] {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary[type="submit"]::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  animation: buttonGlow 2s infinite;
+}
+
+@keyframes buttonGlow {
+  0% { left: -100%; }
+  50% { left: 100%; }
+  100% { left: 100%; }
+}
+
+/* Enhanced data points with blinking cursor */
+.data-point {
+  position: relative;
+  padding-right: 15px;
+}
+
+.cursor-blink {
+  display: inline-block;
+  width: 8px;
+  height: 15px;
+  background-color: var(--theme-accent-primary);
+  animation: cursorBlink 1.2s infinite;
+  vertical-align: middle;
+  margin-left: 5px;
+}
+
+@keyframes cursorBlink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+/* Technical pattern in background */
+.tech-pattern {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: radial-gradient(
+    circle at 25px 25px, 
+    var(--theme-accent-secondary) 2px, 
+    transparent 0
+  );
+  background-size: 50px 50px;
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Command line animation for titles */
+.command-line-title {
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+}
+
+.command-line-title::before {
+  content: ">";
+  margin-right: 8px;
+  color: var(--theme-accent-primary);
+  font-family: 'Roboto Mono', monospace;
+}
+
+/* Tech radar visualization */
+.tech-radar-container {
+  position: absolute;
+  right: 5%;
+  top: 120px;
+  width: 180px;
+  height: 180px;
+  z-index: 1;
+  opacity: 0.5;
+  transition: opacity 0.3s ease;
+}
+
+.tech-radar-container:hover {
+  opacity: 0.8;
+}
+
+.tech-radar-svg {
+  width: 100%;
+  height: 100%;
+  color: var(--theme-accent-primary);
+}
+
+.section-skills {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Make space for the radar on mobile */
+@media (max-width: 768px) {
+  .tech-radar-container {
+    width: 120px;
+    height: 120px;
+    top: 80px;
+    right: 0;
+  }
+}
+
+/* Data Node styling for leadership section */
+.data-node-container {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  z-index: 1;
+  opacity: 0.6;
+}
+
+.data-node-svg {
+  width: 100%;
+  height: 100%;
+  color: var(--theme-accent-primary);
+}
+
+.node-1 {
+  top: 15%;
+  left: 8%;
+}
+
+.node-2 {
+  top: 40%;
+  right: 10%;
+}
+
+.node-3 {
+  bottom: 20%;
+  left: 15%;
+}
+
+.section-leadership {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Position nodes better on mobile */
+@media (max-width: 768px) {
+  .data-node-container {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .node-1 {
+    top: 5%;
+    left: 5%;
+  }
+  
+  .node-2 {
+    top: 30%;
+    right: 5%;
+  }
+  
+  .node-3 {
+    bottom: 10%;
+    left: 8%;
+  }
+}
+
+/* Circuit pattern styling for projects section */
+.circuit-pattern-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  opacity: 0.03;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.circuit-pattern-svg {
+  width: 100%;
+  height: 100%;
+  color: var(--theme-accent-primary);
+}
+
+.section-projects {
+  position: relative;
+}
+
+/* Data flow pattern styling for contact section */
+.data-flow-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  opacity: 0.04;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.data-flow-svg {
+  width: 100%;
+  height: 100%;
+  color: var(--theme-accent-primary);
+}
+
+.section-contact {
+  position: relative;
+}

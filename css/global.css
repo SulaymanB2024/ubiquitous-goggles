@@ -1,0 +1,100 @@
+/* Base Reset */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* Global Styles */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--theme-dark-bg);
+    color: var(--theme-light-text);
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    line-height: 1.5;
+}
+
+/* Typography Styles */
+h1, h2, h3, h4, h5, h6 {
+    line-height: 1.2;
+}
+
+h1 {
+    font-size: var(--font-hero);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: -0.025em;
+    color: var(--theme-light-text);
+    text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+}
+
+h2 {
+    font-size: var(--font-h2);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.075em;
+    color: var(--theme-light-text);
+    padding-bottom: 0.6rem;
+    border-bottom: 2px solid var(--theme-accent-secondary);
+    margin-bottom: 3rem;
+}
+
+h3 {
+    font-size: var(--font-h3);
+    font-weight: 600;
+    color: var(--theme-light-text);
+    margin-bottom: 0.5rem;
+}
+
+h4 {
+    font-size: var(--font-h4);
+    font-weight: 500;
+    color: var(--theme-light-text);
+    letter-spacing: 0.025em;
+}
+
+p {
+    font-size: var(--font-body);
+    font-weight: 300;
+    line-height: 1.75;
+    color: var(--theme-medium-text);
+    margin-bottom: 1.5rem;
+}
+
+/* Strong paragraph - impact statements */
+p.impact {
+    font-weight: 400;
+    color: var(--theme-light-text);
+}
+
+.monospace-title {
+    font-family: 'Roboto Mono', monospace;
+    color: var(--theme-medium-text);
+    font-size: clamp(1rem, 3vw, 1.1rem);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.small-text {
+    font-size: var(--font-small);
+    font-weight: 400;
+    color: var(--theme-subtle-text);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Containers */
+.container {
+    width: 100%;
+    max-width: var(--container-max-width);
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+section {
+    padding: var(--section-spacing) 0;
+}

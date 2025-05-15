@@ -1,0 +1,149 @@
+/* Skills Section Styles */
+.section-skills {
+    background-color: var(--theme-dark-bg);
+    position: relative;
+}
+
+.skills-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 3rem;
+    margin-bottom: 3rem;
+}
+
+.skills-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.skills-header {
+    margin-bottom: 1.5rem;
+}
+
+.skill-category {
+    margin-bottom: 2rem;
+}
+
+.category-title {
+    font-family: 'Roboto Mono', monospace;
+    color: var(--theme-light-text);
+    margin-bottom: 1.25rem;
+    letter-spacing: 0.05em;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border-bottom: 1px solid var(--theme-accent-secondary);
+    padding-bottom: 0.5rem;
+}
+
+.skill-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.skill-item {
+    width: 100%;
+}
+
+.skill-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.skill-name {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
+    color: var(--theme-medium-text);
+}
+
+.skill-percentage {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--theme-accent-primary);
+}
+
+.skill-progress {
+    height: 6px;
+    width: 100%;
+    background-color: var(--theme-dark-surface);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.skill-progress-bar {
+    height: 100%;
+    background-color: var(--theme-accent-primary);
+    border-radius: 3px;
+    position: relative;
+    transition: width 1.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.skill-progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 5px;
+    background-color: var(--theme-light-text);
+    opacity: 0.5;
+    border-radius: 0 3px 3px 0;
+}
+
+/* Tools & Technologies Section */
+.tools-section {
+    margin-top: 3rem;
+}
+
+.tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.tool-item {
+    background-color: var(--theme-dark-surface);
+    border: 1px solid var(--theme-accent-secondary);
+    border-radius: 6px;
+    padding: 1.25rem 0.75rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.tool-item:hover {
+    transform: translateY(-5px);
+    border-color: var(--theme-accent-primary);
+    box-shadow: 0 8px 20px rgba(var(--theme-accent-primary-rgb), 0.08);
+}
+
+.tool-icon {
+    font-size: 2rem;
+    color: var(--theme-accent-primary);
+    margin-bottom: 0.75rem;
+}
+
+.tool-name {
+    font-size: 0.8rem;
+    color: var(--theme-medium-text);
+    font-family: 'Inter', sans-serif;
+}
+
+/* Responsive Styles */
+@media (max-width: 992px) {
+    .skills-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .tools-grid {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    }
+}

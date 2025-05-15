@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sulayman Bowles - Portfolio</title>
+    
+    <!-- Google Fonts: Inter (300,400,500,600,700,900) and Roboto Mono (400) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Roboto+Mono&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <!-- CSS Styles (Modularized) -->
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/buttons.css">
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/hero.css">
+    <link rel="stylesheet" href="css/about.css">
+    <link rel="stylesheet" href="css/projects.css">
+    <link rel="stylesheet" href="css/skills.css">
+    <link rel="stylesheet" href="css/leadership.css">
+    <link rel="stylesheet" href="css/contact.css">
+    <link rel="stylesheet" href="css/modals.css">
+    <link rel="stylesheet" href="css/footer.css">
+    <link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+    <!-- Navigation Bar: "Command Bar" -->
+    <nav id="navbar">
+        <div class="container">
+            <div class="navbar-content">
+                <div class="navbar-logo">
+                    <a href="#hero">SULAYMAN BOWLES_OS_v2.0</a>
+                </div>
+                <div class="navbar-links desktop-nav">
+                    <a href="#about" class="nav-link">ABOUT</a>
+                    <a href="#projects" class="nav-link">PROJECTS</a>
+                    <a href="#skills" class="nav-link">SKILLS</a>
+                    <a href="#leadership" class="nav-link">LEADERSHIP</a>
+                    <a href="#contact" class="nav-link">CONTACT</a>
+                    <a href="#" class="btn-nav">[ RESUME_PDF ]</a>
+                </div>
+                <button class="mobile-menu-btn" aria-label="Toggle navigation menu">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+        <!-- Mobile Navigation Menu (Initially Hidden) -->
+        <div class="mobile-nav">
+            <div class="mobile-nav-content">
+                <a href="#about" class="nav-link">ABOUT</a>
+                <a href="#projects" class="nav-link">PROJECTS</a>
+                <a href="#skills" class="nav-link">SKILLS</a>
+                <a href="#leadership" class="nav-link">LEADERSHIP</a>
+                <a href="#contact" class="nav-link">CONTACT</a>
+                <a href="#" class="btn-nav">[ RESUME_PDF ]</a>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Hero Section -->
+    <section id="hero">
+        <div id="particles-js"></div>
+        <div class="container">
+            <div class="hero-content">
+                <h1>SULAYMAN BOWLES</h1>
+                <p class="tagline">SYSTEM ONLINE: STRATEGIC INSIGHT ENGINE</p>
+                <a href="#about" class="btn btn-primary">[ ENGAGE INTERFACE ]</a>
+            </div>
+        </div>
+    </section>
+    
+    <!-- About Section: "System Architecture" -->
+    <section id="about" class="section-about">
+        <div class="container">
+            <h2 class="section-title revealable">SYSTEM ARCHITECTURE</h2>
+            <div class="about-grid">
+                <div class="about-image-container revealable" data-delay="0.1s">
+                    <div class="about-image">
+                        <img src="https://placehold.co/500x650/171C2A/E0E7FF?text=S.B_PROFILE" alt="Sulayman Bowles" class="profile-image">
+                        <div class="image-overlay"></div>
+                        <div class="image-data-points">
+                            <div class="data-point"><span class="data-label">ID:</span> SB_0014</div>
+                            <div class="data-point"><span class="data-label">STATUS:</span> OPERATIONAL</div>
+                            <div class="data-point"><span class="data-label">SYSTEM:</span> ACTIVE</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="about-content revealable" data-delay="0.3s">
+                    <span class="monospace-title">// CORE_SYSTEM_OVERVIEW:</span>
+                    <p class="impact">Sulayman Bowles operates at the intersection of Finance, Technology, and Music, synthesizing these disciplines into a unique strategic operating system.</p>
+                    <p>A multifaceted professional with expertise in financial analysis, technological innovation, and creative problem-solving. Sulayman brings analytical rigor and systematic thinking to every challenge, while leveraging his musical background for structured creativity and harmony in execution.</p>
+                    <div class="module-block revealable" data-delay="0.5s">
+                        <div class="module">
+                            <h4>FINANCE MODULE</h4>
+                            <p>Data-driven decision making, financial modeling, and strategic investment analysis.</p>
+                        </div>
+                        <div class="module">
+                            <h4>TECHNOLOGY MODULE</h4>
+                            <p>Systems architecture, digital optimization, and innovation implementation.</p>
+                        </div>
+                        <div class="module">
+                            <h4>MUSIC MODULE</h4>
+                            <p>Structured creativity, harmonic collaboration, and rhythmic execution.</p>
+                        </div>
+                    </div>
+                    <div class="cta-container revealable" data-delay="0.7s">
+                        <a href="#projects" class="btn btn-primary">[ EXPLORE APPLICATIONS ]</a>
+                        <a href="#contact" class="btn btn-secondary">[ ESTABLISH CONNECTION ]</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Projects Section: "Applications Directory" -->
+    <section id="projects" class="section-projects">
+        <div class="container">
+            <h2 class="section-title revealable">APPLICATIONS DIRECTORY</h2>
+            
+            <!-- Project Filter -->
+            <div class="project-filter revealable" data-delay="0.1s">
+                <span class="monospace-title filter-label">// FILTER_APPLICATIONS:</span>
+                <div class="filter-options">
+                    <button class="filter-btn active" data-filter="all">ALL</button>
+                    <button class="filter-btn" data-filter="finance">FINANCE</button>
+                    <button class="filter-btn" data-filter="tech">TECHNOLOGY</button>
+                    <button class="filter-btn" data-filter="music">MUSIC</button>
+                </div>
+            </div>
+            
+            <!-- Projects Grid -->
+            <div class="projects-grid">
+                <!-- Project Card 1 -->
+                <div class="project-card revealable" data-delay="0.2s" data-category="finance tech">
+                    <div class="project-image">
+                        <img src="https://placehold.co/600x350/171C2A/00BFFF?text=PROJECT_ALPHA" alt="Project Alpha" class="card-img">
+                        <div class="image-overlay"></div>
+                    </div>
+                    <div class="project-content">
+                        <span class="project-id">PROJECT_ID: PRJ-0001</span>
+                        <h3 class="project-title">Financial Analytics Platform</h3>
+                        <p class="project-description">A comprehensive dashboard for real-time financial data analysis and strategic decision support.</p>
+                        <div class="project-tech">
+                            <span class="tech-tag">React</span>
+                            <span class="tech-tag">Node.js</span>
+                            <span class="tech-tag">D3.js</span>
+                        </div>
+                        <button class="btn btn-project" data-project="project-1">[ VIEW DETAILS ]</button>
+                    </div>
+                </div>
+                
+                <!-- Project Card 2 -->
+                <div class="project-card revealable" data-delay="0.3s" data-category="tech">
+                    <div class="project-image">
+                        <img src="https://placehold.co/600x350/171C2A/00BFFF?text=PROJECT_BETA" alt="Project Beta" class="card-img">
+                        <div class="image-overlay"></div>
+                    </div>
+                    <div class="project-content">
+                        <span class="project-id">PROJECT_ID: PRJ-0002</span>
+                        <h3 class="project-title">Machine Learning Framework</h3>
+                        <p class="project-description">AI-driven system for predictive analytics and pattern recognition in complex data sets.</p>
+                        <div class="project-tech">
+                            <span class="tech-tag">Python</span>
+                            <span class="tech-tag">TensorFlow</span>
+                            <span class="tech-tag">AWS</span>
+                        </div>
+                        <button class="btn btn-project" data-project="project-2">[ VIEW DETAILS ]</button>
+                    </div>
+                </div>
+                
+                <!-- Project Card 3 -->
+                <div class="project-card revealable" data-delay="0.4s" data-category="music tech">
+                    <div class="project-image">
+                        <img src="https://placehold.co/600x350/171C2A/00BFFF?text=PROJECT_GAMMA" alt="Project Gamma" class="card-img">
+                        <div class="image-overlay"></div>
+                    </div>
+                    <div class="project-content">
+                        <span class="project-id">PROJECT_ID: PRJ-0003</span>
+                        <h3 class="project-title">Audio Synthesis Engine</h3>
+                        <p class="project-description">Digital audio workstation with algorithmic composition capabilities for modern music production.</p>
+                        <div class="project-tech">
+                            <span class="tech-tag">WebAudio API</span>
+                            <span class="tech-tag">C++</span>
+                            <span class="tech-tag">JUCE</span>
+                        </div>
+                        <button class="btn btn-project" data-project="project-3">[ VIEW DETAILS ]</button>
+                    </div>
+                </div>
+                
+                <!-- Project Card 4 -->
+                <div class="project-card revealable" data-delay="0.5s" data-category="finance">
+                    <div class="project-image">
+                        <img src="https://placehold.co/600x350/171C2A/00BFFF?text=PROJECT_DELTA" alt="Project Delta" class="card-img">
+                        <div class="image-overlay"></div>
+                    </div>
+                    <div class="project-content">
+                        <span class="project-id">PROJECT_ID: PRJ-0004</span>
+                        <h3 class="project-title">Investment Strategy System</h3>
+                        <p class="project-description">Algorithmic trading platform with custom risk assessment and portfolio optimization tools.</p>
+                        <div class="project-tech">
+                            <span class="tech-tag">Python</span>
+                            <span class="tech-tag">SQL</span>
+                            <span class="tech-tag">R</span>
+                        </div>
+                        <button class="btn btn-project" data-project="project-4">[ VIEW DETAILS ]</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Project Modals -->
+    <div class="modal-container" id="modal-project-1">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Financial Analytics Platform</h3>
+                <button class="modal-close" aria-label="Close modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-image">
+                    <img src="https://placehold.co/1200x700/171C2A/00BFFF?text=PROJECT_ALPHA_EXPANDED" alt="Project Alpha Expanded View">
+                </div>
+                <div class="project-details">
+                    <div class="detail-section">
+                        <span class="monospace-title">// PROJECT_OVERVIEW:</span>
+                        <p>A comprehensive financial analytics platform designed to process and visualize complex financial data sets in real-time. The system integrates with multiple data sources to provide actionable insights for strategic decision-making.</p>
+                    </div>
+                    <div class="detail-section">
+                        <span class="monospace-title">// KEY_FEATURES:</span>
+                        <ul class="feature-list">
+                            <li>Real-time data processing pipeline with streaming analytics</li>
+                            <li>Interactive visualization dashboard with customizable widgets</li>
+                            <li>Predictive analytics module using statistical models</li>
+                            <li>Automated reporting system with export capabilities</li>
+                            <li>Role-based access control and data security protocols</li>
+                        </ul>
+                    </div>
+                    <div class="detail-section">
+                        <span class="monospace-title">// TECH_STACK:</span>
+                        <div class="tech-stack">
+                            <span class="tech-tag">React</span>
+                            <span class="tech-tag">Redux</span>
+                            <span class="tech-tag">Node.js</span>
+                            <span class="tech-tag">Express</span>
+                            <span class="tech-tag">MongoDB</span>
+                            <span class="tech-tag">D3.js</span>
+                            <span class="tech-tag">WebSockets</span>
+                            <span class="tech-tag">Docker</span>
+                        </div>
+                    </div>
+                    <div class="detail-section">
+                        <span class="monospace-title">// IMPACT_ANALYSIS:</span>
+                        <p>Reduced decision-making time by 47% through real-time analytics capabilities. Increased accuracy of financial forecasts by 32%. Platform handles over 1M data points daily with sub-second response times.</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a href="#" class="btn btn-secondary">[ VISIT PROJECT ]</a>
+                    <a href="#" class="btn btn-secondary">[ VIEW REPOSITORY ]</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer: "System Status Bar" -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-status">
+                    <span class="status-text">// S.BOWLES_OS: ONLINE | STATUS: OPERATIONAL</span>
+                </div>
+                <div class="footer-copyright">
+                    <span>© <span id="current-year"></span> SULAYMAN BOWLES. ALL RIGHTS RESERVED.</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript Libraries -->
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    
+    <!-- JavaScript Modules -->
+    <script src="js/main.js"></script>
+    <script src="js/navigation.js"></script>
+    <script src="js/animations.js"></script>
+    <script src="js/particles-config.js"></script>
+    <script src="js/projects.js"></script>
+</body>
+</html>
