@@ -1,0 +1,157 @@
+/* Enhanced Contact Terminal Settings Fixes */
+
+/* Settings panel styling */
+.settings-panel {
+  background-color: rgba(var(--theme-dark-surface-rgb), 0.9);
+  border: 1px solid var(--theme-accent-secondary);
+  border-radius: 6px;
+  padding: 15px;
+  max-width: 500px;
+  margin: 0 auto;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.settings-header {
+  font-size: 1.1em;
+  color: var(--theme-accent-primary);
+  border-bottom: 1px solid var(--theme-accent-secondary);
+  padding-bottom: 10px;
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+.settings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.setting-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+}
+
+.setting-name {
+  color: var(--theme-light-text);
+  font-family: 'Source Code Pro', 'Roboto Mono', monospace;
+}
+
+.setting-control {
+  display: flex;
+  gap: 5px;
+}
+
+/* Button styling */
+.setting-btn {
+  background-color: var(--theme-dark-surface-alt);
+  color: var(--theme-medium-text);
+  border: 1px solid var(--theme-accent-secondary);
+  border-radius: 4px;
+  padding: 5px 10px;
+  font-family: 'Source Code Pro', 'Roboto Mono', monospace;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.setting-btn:hover {
+  background-color: rgba(var(--theme-accent-secondary-rgb), 0.3);
+  color: var(--theme-light-text);
+}
+
+.setting-btn.active {
+  background-color: var(--theme-accent-primary);
+  color: var(--theme-dark-bg);
+  border-color: var(--theme-accent-primary);
+}
+
+/* Footer buttons */
+.settings-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+  padding-top: 10px;
+  border-top: 1px solid var(--theme-accent-secondary);
+}
+
+.settings-btn {
+  background-color: var(--theme-dark-surface-alt);
+  color: var(--theme-light-text);
+  border: 1px solid var(--theme-accent-secondary);
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-family: 'Source Code Pro', 'Roboto Mono', monospace;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.settings-btn:hover {
+  background-color: rgba(var(--theme-accent-secondary-rgb), 0.3);
+}
+
+.settings-btn.save-settings {
+  background-color: var(--theme-accent-primary);
+  color: var(--theme-dark-bg);
+  border-color: var(--theme-accent-primary);
+}
+
+.settings-btn.save-settings:hover {
+  background-color: var(--theme-accent-hover);
+}
+
+.settings-btn.reset-settings {
+  background-color: transparent;
+}
+
+/* Toggle switch styling */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 22px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--theme-dark-surface-alt);
+  transition: .4s;
+  border-radius: 22px;
+  border: 1px solid var(--theme-accent-secondary);
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 3px;
+  bottom: 2px;
+  background-color: var(--theme-medium-text);
+  transition: .4s;
+  border-radius: 50%;
+}
+
+input:checked + .toggle-slider {
+  background-color: rgba(var(--theme-accent-primary-rgb), 0.3);
+  border-color: var(--theme-accent-primary);
+}
+
+input:checked + .toggle-slider:before {
+  transform: translateX(17px);
+  background-color: var(--theme-accent-primary);
+}

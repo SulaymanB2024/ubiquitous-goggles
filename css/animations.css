@@ -1,11 +1,289 @@
-/* Animation and Transitions */
+/* Advanced Palantir-style Animations and Transitions */
+
+/* Base reveal animations */
 .revealable {
     opacity: 0;
-    transform: translateY(25px);
-    transition: opacity 0.7s cubic-bezier(0.645, 0.045, 0.355, 1), transform 0.7s cubic-bezier(0.645, 0.045, 0.355, 1);
+    transition-property: opacity, transform, filter;
+    transition-timing-function: cubic-bezier(0.2, 1, 0.3, 1); /* Enhanced easing */
+    transition-duration: 0.7s;
+    will-change: opacity, transform; /* Performance optimization */
 }
 
 .revealable.active {
     opacity: 1;
+}
+
+/* Standard fade-up animation (default) */
+.revealable:not([data-animation]) {
+    transform: translateY(25px);
+}
+
+.revealable.active:not([data-animation]) {
     transform: translateY(0);
+}
+
+/* Multiple reveal animation types */
+.revealable.fade-up,
+.fade-up {
+    transform: translateY(25px);
+}
+
+.revealable.active.fade-up,
+.fade-up.active {
+    transform: translateY(0);
+}
+
+.revealable.fade-down,
+.fade-down {
+    transform: translateY(-25px);
+}
+
+.revealable.active.fade-down,
+.fade-down.active {
+    transform: translateY(0);
+}
+
+.revealable.fade-left,
+.fade-left {
+    transform: translateX(25px);
+}
+
+.revealable.active.fade-left,
+.fade-left.active {
+    transform: translateX(0);
+}
+
+.revealable.fade-right,
+.fade-right {
+    transform: translateX(-25px);
+}
+
+.revealable.active.fade-right,
+.fade-right.active {
+    transform: translateX(0);
+}
+
+.revealable.zoom-in,
+.zoom-in {
+    transform: scale(0.95);
+}
+
+.revealable.active.zoom-in,
+.zoom-in.active {
+    transform: scale(1);
+}
+
+.revealable.zoom-out,
+.zoom-out {
+    transform: scale(1.05);
+}
+
+.revealable.active.zoom-out,
+.zoom-out.active {
+    transform: scale(1);
+}
+
+/* Staggered text animations for headings */
+.animate-heading {
+    overflow: hidden;
+}
+
+.animate-heading span {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(100%);
+    transition: opacity 0.4s cubic-bezier(0.2, 1, 0.3, 1), 
+                transform 0.4s cubic-bezier(0.2, 1, 0.3, 1);
+}
+
+.animate-heading-active span {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Skill bar animation enhancements */
+.animate-progress {
+    background-image: linear-gradient(
+        45deg,
+        rgba(255, 255, 255, 0.15) 25%,
+        transparent 25%,
+        transparent 50%,
+        rgba(255, 255, 255, 0.15) 50%,
+        rgba(255, 255, 255, 0.15) 75%,
+        transparent 75%,
+        transparent
+    );
+    background-size: 1rem 1rem;
+    animation: progress-stripes 1s linear infinite;
+}
+
+@keyframes progress-stripes {
+    from { background-position: 1rem 0; }
+    to { background-position: 0 0; }
+}
+
+/* Neon glow effect for elements with data-glow attribute */
+.glow-effect {
+    box-shadow: 0 0 10px rgba(var(--theme-accent-primary-rgb), 0.3),
+                0 0 20px rgba(var(--theme-accent-primary-rgb), 0.2);
+    animation: pulse-glow 2s infinite ease-in-out;
+}
+
+/* Pulse glow animation */
+@keyframes pulse-glow {
+    0% { box-shadow: 0 0 10px rgba(var(--theme-accent-primary-rgb), 0.3),
+                    0 0 20px rgba(var(--theme-accent-primary-rgb), 0.2); }
+    50% { box-shadow: 0 0 15px rgba(var(--theme-accent-primary-rgb), 0.4),
+                    0 0 30px rgba(var(--theme-accent-primary-rgb), 0.3); }
+    100% { box-shadow: 0 0 10px rgba(var(--theme-accent-primary-rgb), 0.3),
+                    0 0 20px rgba(var(--theme-accent-primary-rgb), 0.2); }
+}
+
+.pulse-glow {
+    animation: pulse-glow 2s infinite ease-in-out;
+}
+
+/* Interactive hover effects */
+.hover-glow {
+    position: relative;
+    overflow: hidden;
+}
+
+.hover-glow::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(
+        circle at var(--x, center) var(--y, center),
+        rgba(var(--theme-accent-primary-rgb), 0.3) 0%,
+        rgba(var(--theme-accent-primary-rgb), 0) 60%
+    );
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: -1;
+    transform: scale(1.5);
+}
+
+.hover-glow:hover::before {
+    opacity: 1;
+}
+
+/* Click particle animation */
+.particle-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+    overflow: hidden;
+}
+
+.click-particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    opacity: 0.8;
+    pointer-events: none;
+    animation: particle-fade 1s cubic-bezier(0.2, 1, 0.3, 1) forwards;
+}
+
+@keyframes particle-fade {
+    0% {
+        opacity: 0.8;
+        transform: translate(0, 0) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(var(--end-x), var(--end-y)) scale(0);
+    }
+}
+
+/* Parallax layer effects */
+[data-parallax] {
+    will-change: transform;
+    transition: transform 0.1s linear;
+}
+
+/* Neon text effect for headings */
+.neon-text {
+    color: #fff;
+    text-shadow: 0 0 5px rgba(var(--theme-accent-primary-rgb), 0.3),
+                0 0 10px rgba(var(--theme-accent-primary-rgb), 0.3),
+                0 0 15px rgba(var(--theme-accent-primary-rgb), 0.3),
+                0 0 20px rgba(var(--theme-accent-primary-rgb), 0.3);
+    animation: neon-pulse 3s infinite ease-in-out;
+}
+
+@keyframes neon-pulse {
+    0% { text-shadow: 0 0 5px rgba(var(--theme-accent-primary-rgb), 0.3),
+                    0 0 10px rgba(var(--theme-accent-primary-rgb), 0.3); }
+    50% { text-shadow: 0 0 10px rgba(var(--theme-accent-primary-rgb), 0.5),
+                    0 0 20px rgba(var(--theme-accent-primary-rgb), 0.4),
+                    0 0 30px rgba(var(--theme-accent-primary-rgb), 0.3); }
+    100% { text-shadow: 0 0 5px rgba(var(--theme-accent-primary-rgb), 0.3),
+                    0 0 10px rgba(var(--theme-accent-primary-rgb), 0.3); }
+}
+
+/* SVG path animation for section titles */
+.svg-path-animate path {
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+    transition: stroke-dashoffset 2s cubic-bezier(0.2, 1, 0.3, 1);
+}
+
+.svg-path-animate.active path {
+    stroke-dashoffset: 0;
+}
+
+/* 3D button effect */
+.btn-3d {
+    position: relative;
+    transition: transform 0.2s;
+}
+
+.btn-3d::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.1) 0%,
+        rgba(255, 255, 255, 0.05) 30%,
+        rgba(0, 0, 0, 0.05) 70%,
+        rgba(0, 0, 0, 0.1) 100%
+    );
+    z-index: -1;
+    border-radius: inherit;
+    transition: all 0.2s;
+}
+
+.btn-3d:hover {
+    transform: translateY(-2px);
+}
+
+.btn-3d:active {
+    transform: translateY(1px);
+}
+
+/* Breathing animation for elements */
+.breathing {
+    animation: breathing 6s infinite ease-in-out;
+}
+
+@keyframes breathing {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.03);
+    }
 }

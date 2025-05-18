@@ -1,4 +1,4 @@
-/* Button Styles */
+/* Enhanced Button Styles with Palantir-grade UI effects */
 .btn {
     display: inline-block;
     font-family: 'Inter', sans-serif;
@@ -9,28 +9,60 @@
     padding: 0.8rem 2rem;
     border-radius: 4px;
     text-decoration: none;
-    transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); /* Improved easing function */
     cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+    /* 3D Bevel effect with top and bottom light/shadow effects */
+    background-image: linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0.12) 0%,
+        rgba(255, 255, 255, 0.06) 15%,
+        rgba(255, 255, 255, 0) 50%,
+        rgba(0, 0, 0, 0.1) 85%,
+        rgba(0, 0, 0, 0.2) 100%
+    );
 }
 
+/* Primary Button Style */
 .btn-primary {
     background-color: var(--theme-accent-primary);
     color: var(--theme-dark-bg);
     border: none;
-    box-shadow: 0 4px 15px rgba(var(--theme-accent-primary-rgb), 0.2);
+    box-shadow: 
+        0 4px 15px rgba(var(--theme-accent-primary-rgb), 0.2),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.1); /* Inner highlight for 3D effect */
+    /* Add slight inner highlight for top edge */
+    border-top: 1px solid rgba(255, 255, 255, 0.25);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.15);
 }
 
 .btn-primary:hover {
     background-color: var(--theme-accent-hover);
     transform: translateY(-3px) scale(1.02);
-    box-shadow: 0 6px 20px rgba(var(--theme-accent-primary-rgb), 0.25);
+    box-shadow: 
+        0 6px 20px rgba(var(--theme-accent-primary-rgb), 0.25),
+        0 0 15px rgba(var(--theme-accent-primary-rgb), 0.4),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.2);
 }
 
+.btn-primary:active {
+    transform: translateY(-1px) scale(0.99);
+    box-shadow: 
+        0 2px 10px rgba(var(--theme-accent-primary-rgb), 0.3),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+    transition: all 0.1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Secondary Button Style */
 .btn-secondary {
-    background-color: transparent;
+    background-color: rgba(var(--theme-dark-surface-rgb), 0.7);
     color: var(--theme-light-text);
     border: 1px solid var(--theme-accent-secondary);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: 
+        0 2px 8px rgba(0, 0, 0, 0.15),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.05);
 }
 
 .btn-secondary:hover {
@@ -38,4 +70,112 @@
     color: var(--theme-accent-primary);
     border-color: var(--theme-accent-primary);
     transform: translateY(-2px);
+    box-shadow: 
+        0 4px 12px rgba(0, 0, 0, 0.2),
+        0 0 10px rgba(var(--theme-accent-primary-rgb), 0.2),
+        inset 0 0 0 1px rgba(var(--theme-accent-primary-rgb), 0.1);
+}
+
+.btn-secondary:active {
+    transform: translateY(0px) scale(0.98);
+    box-shadow: 
+        0 1px 5px rgba(0, 0, 0, 0.1),
+        inset 0 0 0 1px rgba(var(--theme-accent-primary-rgb), 0.1);
+    transition: all 0.1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Enhanced Neon Radial Halo Effect */
+.btn-neon-halo {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: -1;
+    border-radius: inherit;
+    pointer-events: none;
+}
+
+.neon-halo {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 0;
+    height: 0;
+    background: radial-gradient(
+        circle,
+        rgba(var(--theme-accent-primary-rgb), 0.8) 0%,
+        rgba(var(--theme-accent-primary-rgb), 0.5) 20%,
+        rgba(var(--theme-accent-primary-rgb), 0.2) 50%,
+        transparent 70%
+    );
+    border-radius: 50%;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+                width 0.5s cubic-bezier(0.16, 1, 0.3, 1), 
+                height 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.neon-halo.active {
+    width: 150px;
+    height: 150px;
+    opacity: 0.7;
+    transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Button Click Particles Effect */
+.btn-particles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.btn-particle {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.8;
+    pointer-events: none;
+    animation: btn-particle 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes btn-particle {
+    0% {
+        opacity: 0.8;
+        transform: translate(0, 0) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(var(--end-x), var(--end-y)) scale(0);
+    }
+}
+
+.btn-ripple {
+    position: absolute;
+    border-radius: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    background: rgba(255, 255, 255, 0.6);
+    width: 100px;
+    height: 100px;
+    pointer-events: none;
+    z-index: 5;
+    animation: btn-ripple 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes btn-ripple {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0.7;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0;
+    }
 }

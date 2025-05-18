@@ -1,0 +1,181 @@
+/**
+ * Global Aesthetic & Texture - Palantir Inspired UI
+ * Standardizes background and color palette across the Sulayman Bowles portfolio
+ * Implements circuit-board micro-texture and full-screen noise texture overlay
+ */
+
+:root {
+  /* Refined Palantir-inspired color palette */
+  --theme-dark-bg: #0A0E17;
+  --theme-dark-bg-rgb: 10, 14, 23;
+  --theme-dark-surface: #111722;
+  --theme-dark-surface-rgb: 17, 23, 34;
+  --theme-dark-elevated: #1A202C;
+  --theme-dark-elevated-rgb: 26, 32, 44;
+  
+  /* Primary accent - Palantir blue */
+  --theme-accent-primary: #08C6F9;
+  --theme-accent-primary-rgb: 8, 198, 249;
+  
+  /* Secondary accent - Softer cyan */
+  --theme-accent-secondary: #3CDFFF;
+  --theme-accent-secondary-rgb: 60, 223, 255;
+  
+  /* Text Colors */
+  --theme-light-text: #E2F3FD;
+  --theme-light-text-rgb: 226, 243, 253;
+  --theme-medium-text: #A2C1E0;
+  --theme-subtle-text: #607D9C;
+  
+  /* Indicator colors - used for system status */
+  --theme-success: #05D945;
+  --theme-warning: #FFBD2E;
+  --theme-error: #FF5F57;
+}
+
+/* Global background with enhanced depth */
+body {
+  background-color: var(--theme-dark-bg);
+  color: var(--theme-light-text);
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Full-screen noise texture overlay */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0.03;
+  pointer-events: none;
+  background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJhIiB4PSIwIiB5PSIwIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii43NSIgc3RpdGNoVGlsZXM9InN0aXRjaCIgdHlwZT0iZnJhY3RhbE5vaXNlIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIHZhbHVlcz0iMCIvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIiBmaWx0ZXI9InVybCgjYSkiIG9wYWNpdHk9Ii43NSIvPjwvc3ZnPg==');
+  z-index: -1;
+}
+
+/* Circuit-board micro-texture for appropriate sections */
+.circuit-texture {
+  position: relative;
+}
+
+.circuit-texture::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDQwIDQwIj48cGF0aCBkPSJNMCAyMGgxMHYtMTBoLTEwdjEwem0xNS0xMHYtNWgtNXY1aDV6bS01IDEwaDV2LTVoLTV2NXptMTAgMHYtNWgtNXY1aDV6bS01IDEwaDV2LTV2LTVoLTV2MTB6IiBmaWxsPSIjZmZmIiBmaWxsLW9wYWNpdHk9IjAuMDMiLz48L3N2Zz4=');
+  opacity: 0.15;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Grid pattern for section backgrounds */
+.grid-pattern {
+  position: relative;
+}
+
+.grid-pattern::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-size: 40px 40px;
+  background-image: linear-gradient(to right, rgba(60, 223, 255, 0.02) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(60, 223, 255, 0.02) 1px, transparent 1px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Enhanced backdrop for content areas */
+.glass-backdrop {
+  /* Enhanced frosted-glass backdrop effect */
+  background-color: rgba(var(--theme-dark-surface-rgb), 0.8);
+  backdrop-filter: blur(12px) saturate(120%);
+  -webkit-backdrop-filter: blur(12px) saturate(120%);
+  border: 1px solid rgba(var(--theme-accent-secondary-rgb), 0.15);
+  box-shadow: 
+    0 8px 25px rgba(0, 0, 0, 0.3),
+    0 0 15px rgba(var(--theme-accent-secondary-rgb), 0.1),
+    inset 0 0 20px rgba(0, 0, 0, 0.2),
+    inset 0 1px 1px rgba(255, 255, 255, 0.08);
+}
+
+/* Glass reflection overlay */
+.glass-backdrop::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 40%;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Common glow effect for UI elements */
+.glow-effect {
+  box-shadow: 
+    0 0 8px rgba(var(--theme-accent-primary-rgb), 0.2),
+    0 0 15px rgba(var(--theme-accent-primary-rgb), 0.1);
+  transition: box-shadow 0.3s ease;
+}
+
+.glow-effect:hover,
+.glow-effect:focus {
+  box-shadow: 
+    0 0 15px rgba(var(--theme-accent-primary-rgb), 0.3),
+    0 0 25px rgba(var(--theme-accent-primary-rgb), 0.2);
+}
+
+/* Depth layers for stacking context */
+.depth-layer-1 { z-index: 10; position: relative; } /* Base UI elements */
+.depth-layer-2 { z-index: 20; position: relative; } /* Elevated components */
+.depth-layer-3 { z-index: 30; position: relative; } /* Floating components */
+.depth-layer-4 { z-index: 40; position: relative; } /* Foreground elements */
+.depth-layer-5 { z-index: 50; position: relative; } /* Overlays */
+
+/* Common animation curves for consistent motion */
+:root {
+  --animation-curve-1: cubic-bezier(0.16, 1, 0.3, 1); /* Graceful entry */
+  --animation-curve-2: cubic-bezier(0.65, 0, 0.35, 1); /* Standard curve */
+  --animation-curve-3: cubic-bezier(0.34, 1.56, 0.64, 1); /* Elastic return */
+  --animation-curve-4: cubic-bezier(0.22, 1, 0.36, 1); /* Quick exit */
+}
+
+/* Hardware acceleration for all animations */
+.animate-gpu {
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Focus ring style consistent with the theme */
+*:focus-visible {
+  outline: 2px solid var(--theme-accent-primary);
+  outline-offset: 2px;
+}
+
+/* Accessibility - skip link and screen reader utilities */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}

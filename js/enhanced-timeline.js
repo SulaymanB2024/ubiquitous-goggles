@@ -1,25 +1,36 @@
 /**
  * Enhanced Timeline Filter Component
- * Provides improved interactivity with smooth animations and better visual feedback
+ * A high-performance, accessible timeline filter with smooth animations
+ * and comprehensive interaction support across devices
+ * @version 2.0.0
  */
 
 class EnhancedTimelineFilter {
     constructor(containerId, options = {}) {
-        // Set default options
+        // Set default options with destructuring
         this.options = {
             minYear: 2018, 
             maxYear: 2025,
             initialRange: [2020, 2023],
             step: 1,
+            animationDuration: 400,
+            throttleDelay: 16, // ~60fps
             onChange: null,
             onInit: null,
             ...options
         };
         
         this.container = document.getElementById(containerId);
+        if (!this.container) {
+            console.error(`Timeline filter container #${containerId} not found`);
+            return;
+        }
+        
         this.range = [...this.options.initialRange];
-        this.dragging = null; // 'min', 'max', or null
+        this.dragging = null;
         this.yearRange = this.options.maxYear - this.options.minYear;
+        this.boundEvents = {};
+        this.lastAnimationFrame = null;
         
         // Initialize the component
         this.init();
@@ -29,6 +40,27 @@ class EnhancedTimelineFilter {
      * Initialize the timeline filter component
      */
     init() {
+        this.createDOMElements();
+        this.setupEventListeners();
+        
+        // Set initial positions
+        this.updateHandles();
+        this.updateDisplay();
+        this.updateTicksActive();
+        
+        // Store original range for reset functionality
+        this.originalRange = [...this.range];
+        
+        // Call onInit callback if provided
+        if (typeof this.options.onInit === 'function') {
+            this.options.onInit(this.range);
+        }
+    }
+    
+    /**
+     * Create all required DOM elements
+     */
+    createDOMElements() {
         // Create the timeline filter container
         this.filterEl = document.createElement('div');
         this.filterEl.className = 'timeline-filter';
@@ -44,7 +76,28 @@ class EnhancedTimelineFilter {
         this.selectedRange.className = 'timeline-selected-range';
         this.track.appendChild(this.selectedRange);
         
-        // Create the handles with enhanced accessibility
+        // Create handles
+        this.createAccessibleHandles();
+        
+        // Create tick marks for years
+        this.createTicks();
+        
+        // Create value display
+        this.valueDisplay = document.createElement('div');
+        this.valueDisplay.className = 'timeline-value-display';
+        this.valueDisplay.setAttribute('aria-live', 'polite');
+        this.valueDisplay.innerHTML = `
+            <span class="timeline-min-year">${this.range[0]}</span> - 
+            <span class="timeline-max-year">${this.range[1]}</span>
+        `;
+        this.filterEl.appendChild(this.valueDisplay);
+    }
+    
+    /**
+     * Create accessible slider handles
+     */
+    createAccessibleHandles() {
+        // Create min handle with enhanced accessibility
         this.minHandle = document.createElement('div');
         this.minHandle.className = 'timeline-handle timeline-handle-min';
         this.minHandle.setAttribute('aria-label', 'Minimum year');
@@ -53,8 +106,10 @@ class EnhancedTimelineFilter {
         this.minHandle.setAttribute('aria-valuemin', this.options.minYear);
         this.minHandle.setAttribute('aria-valuemax', this.options.maxYear);
         this.minHandle.setAttribute('aria-valuenow', this.range[0]);
+        this.minHandle.setAttribute('aria-valuetext', `${this.range[0]}`);
         this.track.appendChild(this.minHandle);
         
+        // Create max handle with enhanced accessibility
         this.maxHandle = document.createElement('div');
         this.maxHandle.className = 'timeline-handle timeline-handle-max';
         this.maxHandle.setAttribute('aria-label', 'Maximum year');
@@ -63,31 +118,8 @@ class EnhancedTimelineFilter {
         this.maxHandle.setAttribute('aria-valuemin', this.options.minYear);
         this.maxHandle.setAttribute('aria-valuemax', this.options.maxYear);
         this.maxHandle.setAttribute('aria-valuenow', this.range[1]);
+        this.maxHandle.setAttribute('aria-valuetext', `${this.range[1]}`);
         this.track.appendChild(this.maxHandle);
-        
-        // Create tick marks for years
-        this.createTicks();
-        
-        // Create value display
-        this.valueDisplay = document.createElement('div');
-        this.valueDisplay.className = 'timeline-value-display';
-        this.filterEl.appendChild(this.valueDisplay);
-        
-        // Set up event listeners
-        this.setupEventListeners();
-        
-        // Set initial positions
-        this.updateHandles();
-        this.updateDisplay();
-        this.updateTicksActive();
-        
-        // Call onInit callback if provided
-        if (this.options.onInit) {
-            this.options.onInit(this.range);
-        }
-        
-        // Store original range for reset functionality
-        this.originalRange = [...this.range];
     }
     
     /**
@@ -97,6 +129,7 @@ class EnhancedTimelineFilter {
         const ticksContainer = document.createElement('div');
         ticksContainer.className = 'timeline-ticks';
         
+        const fragment = document.createDocumentFragment();
         for (let year = this.options.minYear; year <= this.options.maxYear; year++) {
             const tick = document.createElement('div');
             tick.className = 'timeline-tick';
@@ -112,17 +145,262 @@ class EnhancedTimelineFilter {
             label.textContent = year;
             
             tick.appendChild(label);
-            ticksContainer.appendChild(tick);
-            
-            // Add click event for tick labels
-            tick.addEventListener('click', (e) => {
-                const clickedYear = parseInt(tick.dataset.year);
-                this.handleTickClick(clickedYear);
-            });
+            fragment.appendChild(tick);
         }
         
+        ticksContainer.appendChild(fragment);
         this.filterEl.appendChild(ticksContainer);
         this.ticksContainer = ticksContainer;
+        
+        // Add delegated event listener for ticks
+        this.ticksContainer.addEventListener('click', (event) => {
+            const tick = event.target.closest('.timeline-tick');
+            if (tick) {
+                const clickedYear = parseInt(tick.dataset.year, 10);
+                this.handleTickClick(clickedYear);
+            }
+        });
+    }
+    
+    /**
+     * Set up event listeners with proper binding and cleanup support
+     */
+    setupEventListeners() {
+        // Store bound methods for later removal
+        this.boundEvents = {
+            minHandleMouseDown: this.startDrag.bind(this, 'min'),
+            maxHandleMouseDown: this.startDrag.bind(this, 'max'),
+            documentMouseMove: this.throttle(this.drag.bind(this), this.options.throttleDelay),
+            documentMouseUp: this.endDrag.bind(this),
+            minHandleKeyDown: (e) => this.handleKeyDown(e, 'min'),
+            maxHandleKeyDown: (e) => this.handleKeyDown(e, 'max'),
+            trackClick: this.handleTrackClick.bind(this)
+        };
+        
+        // Mouse events
+        this.minHandle.addEventListener('mousedown', this.boundEvents.minHandleMouseDown);
+        this.maxHandle.addEventListener('mousedown', this.boundEvents.maxHandleMouseDown);
+        document.addEventListener('mousemove', this.boundEvents.documentMouseMove);
+        document.addEventListener('mouseup', this.boundEvents.documentMouseUp);
+        
+        // Touch events with passive: false for better performance on supported browsers
+        this.addTouchEvents();
+        
+        // Keyboard events
+        this.minHandle.addEventListener('keydown', this.boundEvents.minHandleKeyDown);
+        this.maxHandle.addEventListener('keydown', this.boundEvents.maxHandleKeyDown);
+        
+        // Track click
+        this.track.addEventListener('click', this.boundEvents.trackClick);
+        
+        // Reset button event
+        const resetBtn = document.getElementById('reset-timeline');
+        if (resetBtn) {
+            resetBtn.addEventListener('click', () => this.resetTimeline());
+        }
+        
+        // Handle window resize (debounced)
+        this.resizeObserver = new ResizeObserver(this.debounce(() => {
+            this.updateHandles();
+        }, 250));
+        this.resizeObserver.observe(this.container);
+    }
+    
+    /**
+     * Add touch event listeners with proper options
+     */
+    addTouchEvents() {
+        const touchOpts = { passive: false };
+        
+        this.minHandle.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            this.startDrag('min', touch);
+        }, touchOpts);
+        
+        this.maxHandle.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            this.startDrag('max', touch);
+        }, touchOpts);
+        
+        document.addEventListener('touchmove', (e) => {
+            if (this.dragging) {
+                e.preventDefault();
+                const touch = e.touches[0];
+                this.drag(touch);
+            }
+        }, touchOpts);
+        
+        document.addEventListener('touchend', this.boundEvents.documentMouseUp);
+    }
+    
+    /**
+     * Start dragging a handle
+     */
+    startDrag(handle, event) {
+        if (event.preventDefault) {
+            event.preventDefault();
+        }
+        
+        this.dragging = handle;
+        
+        // Add class to indicate dragging
+        const handleEl = handle === 'min' ? this.minHandle : this.maxHandle;
+        handleEl.classList.add('dragging');
+        document.body.classList.add('timeline-dragging');
+        
+        // Focus the handle for accessibility
+        handleEl.focus();
+    }
+    
+    /**
+     * Handle dragging of handles with requestAnimationFrame
+     */
+    drag(event) {
+        if (!this.dragging) return;
+        
+        // Get mouse/touch position
+        const clientX = event.clientX || (event.touches && event.touches[0].clientX);
+        if (!clientX) return;
+        
+        // Use requestAnimationFrame for smooth visual updates
+        if (this.lastAnimationFrame) {
+            cancelAnimationFrame(this.lastAnimationFrame);
+        }
+        
+        this.lastAnimationFrame = requestAnimationFrame(() => {
+            // Calculate position as percentage within track
+            const trackRect = this.track.getBoundingClientRect();
+            let percentage = (clientX - trackRect.left) / trackRect.width;
+            percentage = Math.max(0, Math.min(1, percentage));
+            
+            // Convert to year value with snapping
+            const yearValue = Math.round(percentage * this.yearRange) + this.options.minYear;
+            
+            // Update corresponding range value
+            if (this.dragging === 'min') {
+                this.range[0] = Math.min(yearValue, this.range[1] - this.options.step);
+                this.updateARIA(this.minHandle, this.range[0]);
+            } else {
+                this.range[1] = Math.max(yearValue, this.range[0] + this.options.step);
+                this.updateARIA(this.maxHandle, this.range[1]);
+            }
+            
+            // Update UI
+            this.updateHandles();
+            this.updateDisplay();
+            this.updateTicksActive();
+            
+            // Call onChange callback
+            this.triggerOnChange();
+        });
+    }
+    
+    /**
+     * End dragging a handle
+     */
+    endDrag() {
+        if (!this.dragging) return;
+        
+        // Remove dragging classes
+        const handleEl = this.dragging === 'min' ? this.minHandle : this.maxHandle;
+        handleEl.classList.remove('dragging');
+        document.body.classList.remove('timeline-dragging');
+        
+        this.dragging = null;
+    }
+    
+    /**
+     * Update ARIA attributes for a handle
+     */
+    updateARIA(handle, value) {
+        handle.setAttribute('aria-valuenow', value);
+        handle.setAttribute('aria-valuetext', `${value}`);
+    }
+    
+    /**
+     * Handle keyboard navigation with improved accessibility
+     */
+    handleKeyDown(e, handle) {
+        const step = this.options.step;
+        const handleEl = handle === 'min' ? this.minHandle : this.maxHandle;
+        
+        // Common keys mapping
+        const keyActions = {
+            'ArrowLeft': () => this.adjustHandle(handle, -step),
+            'ArrowRight': () => this.adjustHandle(handle, step),
+            'ArrowDown': () => this.adjustHandle(handle, -step),
+            'ArrowUp': () => this.adjustHandle(handle, step),
+            'Home': () => handle === 'min' 
+                ? this.setHandleValue(handle, this.options.minYear)
+                : this.setHandleValue(handle, this.range[0] + step),
+            'End': () => handle === 'min'
+                ? this.setHandleValue(handle, this.range[1] - step)
+                : this.setHandleValue(handle, this.options.maxYear),
+            'PageDown': () => this.adjustHandle(handle, -step * 5),
+            'PageUp': () => this.adjustHandle(handle, step * 5)
+        };
+        
+        if (keyActions[e.key]) {
+            e.preventDefault();
+            keyActions[e.key]();
+            
+            // Update UI
+            this.updateHandles();
+            this.updateDisplay();
+            this.updateTicksActive();
+            this.triggerOnChange();
+        }
+    }
+    
+    /**
+     * Adjust handle value by an amount
+     */
+    adjustHandle(handle, amount) {
+        if (handle === 'min') {
+            const newValue = Math.max(
+                this.options.minYear,
+                Math.min(this.range[1] - this.options.step, this.range[0] + amount)
+            );
+            this.range[0] = newValue;
+            this.updateARIA(this.minHandle, newValue);
+        } else {
+            const newValue = Math.min(
+                this.options.maxYear,
+                Math.max(this.range[0] + this.options.step, this.range[1] + amount)
+            );
+            this.range[1] = newValue;
+            this.updateARIA(this.maxHandle, newValue);
+        }
+    }
+    
+    /**
+     * Set handle to specific value
+     */
+    setHandleValue(handle, value) {
+        if (handle === 'min') {
+            this.range[0] = Math.max(
+                this.options.minYear,
+                Math.min(this.range[1] - this.options.step, value)
+            );
+            this.updateARIA(this.minHandle, this.range[0]);
+        } else {
+            this.range[1] = Math.min(
+                this.options.maxYear,
+                Math.max(this.range[0] + this.options.step, value)
+            );
+            this.updateARIA(this.maxHandle, this.range[1]);
+        }
+    }
+    
+    /**
+     * Trigger onChange callback with debouncing
+     */
+    triggerOnChange() {
+        if (typeof this.options.onChange === 'function') {
+            this.options.onChange([...this.range]);
+        }
     }
     
     /**
@@ -133,323 +411,82 @@ class EnhancedTimelineFilter {
         const midPoint = (this.range[0] + this.range[1]) / 2;
         
         if (clickedYear < midPoint) {
-            // Update min handle
-            this.range[0] = clickedYear;
+            this.setHandleValue('min', clickedYear);
         } else {
-            // Update max handle
-            this.range[1] = clickedYear;
+            this.setHandleValue('max', clickedYear);
         }
-        
-        // Ensure min <= max
-        if (this.range[0] > this.range[1] - this.options.step) {
-            this.range[0] = this.range[1] - this.options.step;
-        }
-        
-        // Update UI
-        this.updateHandles();
-        this.updateDisplay();
-        this.updateTicksActive();
-        
-        // Call onChange callback
-        if (this.options.onChange) {
-            this.options.onChange(this.range);
-        }
-    }
-    
-    /**
-     * Set up event listeners for handles
-     */
-    setupEventListeners() {
-        // Mouse events for min handle
-        this.minHandle.addEventListener('mousedown', (e) => {
-            e.preventDefault();
-            this.startDrag(e, 'min');
-        });
-        
-        // Mouse events for max handle
-        this.maxHandle.addEventListener('mousedown', (e) => {
-            e.preventDefault();
-            this.startDrag(e, 'max');
-        });
-        
-        // Mouse events for document (for dragging)
-        document.addEventListener('mousemove', (e) => {
-            this.drag(e);
-        });
-        document.addEventListener('mouseup', () => {
-            this.endDrag();
-        });
-        
-        // Touch events for min handle
-        this.minHandle.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            const touch = e.touches[0];
-            this.startDrag(touch, 'min');
-        });
-        
-        // Touch events for max handle
-        this.maxHandle.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            const touch = e.touches[0];
-            this.startDrag(touch, 'max');
-        });
-        
-        // Touch events for document (for dragging)
-        document.addEventListener('touchmove', (e) => {
-            if (this.dragging) {
-                e.preventDefault();
-                const touch = e.touches[0];
-                this.drag(touch);
-            }
-        });
-        document.addEventListener('touchend', () => {
-            this.endDrag();
-        });
-        
-        // Keyboard events for handles
-        this.minHandle.addEventListener('keydown', (e) => {
-            this.handleKeyDown(e, 'min');
-        });
-        this.maxHandle.addEventListener('keydown', (e) => {
-            this.handleKeyDown(e, 'max');
-        });
-        
-        // Click event for track (for quick jumps)
-        this.track.addEventListener('click', (e) => {
-            // Only handle direct clicks on track (not handles)
-            if (e.target === this.track) {
-                this.handleTrackClick(e);
-            }
-        });
-        
-        // Reset button event
-        const resetBtn = document.getElementById('reset-timeline');
-        if (resetBtn) {
-            resetBtn.addEventListener('click', () => this.resetTimeline());
-            resetBtn.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    this.resetTimeline();
-                }
-            });
-        }
-    }
-    
-    /**
-     * Reset timeline to original values
-     */
-    resetTimeline() {
-        // Animate the reset
-        this.range = [...this.originalRange];
         
         // Update UI with animation
-        this.animateReset();
-        
-        // Call onChange callback
-        if (this.options.onChange) {
-            this.options.onChange(this.range);
-        }
-    }
-    
-    /**
-     * Animate the reset of timeline handles
-     */
-    animateReset() {
-        // Add transition class
-        this.minHandle.style.transition = 'left 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
-        this.maxHandle.style.transition = 'left 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
-        this.selectedRange.style.transition = 'left 0.4s cubic-bezier(0.16, 1, 0.3, 1), width 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
-        
-        // Update positions
-        this.updateHandles();
+        this.updateHandles(true);
         this.updateDisplay();
         this.updateTicksActive();
-        
-        // Clear transitions after animation
-        setTimeout(() => {
-            this.minHandle.style.transition = '';
-            this.maxHandle.style.transition = '';
-            this.selectedRange.style.transition = '';
-        }, 400);
-    }
-    
-    /**
-     * Start dragging a handle
-     */
-    startDrag(e, handle) {
-        this.dragging = handle;
-        
-        // Add class to indicate dragging
-        if (handle === 'min') {
-            this.minHandle.classList.add('dragging');
-        } else {
-            this.maxHandle.classList.add('dragging');
-        }
-    }
-    
-    /**
-     * Handle dragging of handles
-     */
-    drag(e) {
-        if (!this.dragging) return;
-        
-        // Get mouse/touch position
-        const clientX = e.clientX || (e.touches && e.touches[0].clientX);
-        if (!clientX) return;
-        
-        // Calculate the position as percentage within track
-        const trackRect = this.track.getBoundingClientRect();
-        let percentage = (clientX - trackRect.left) / trackRect.width;
-        percentage = Math.max(0, Math.min(1, percentage));
-        
-        // Convert to year value with snapping
-        const yearRange = this.options.maxYear - this.options.minYear;
-        const yearValue = Math.round(percentage * yearRange) + this.options.minYear;
-        
-        // Update corresponding range value
-        if (this.dragging === 'min') {
-            this.range[0] = Math.min(yearValue, this.range[1] - this.options.step);
-            this.minHandle.setAttribute('aria-valuenow', this.range[0]);
-        } else {
-            this.range[1] = Math.max(yearValue, this.range[0] + this.options.step);
-            this.maxHandle.setAttribute('aria-valuenow', this.range[1]);
-        }
-        
-        // Update UI
-        this.updateHandles();
-        this.updateDisplay();
-        this.updateTicksActive();
-        
-        // Call onChange callback
-        if (this.options.onChange) {
-            this.options.onChange(this.range);
-        }
-    }
-    
-    /**
-     * End dragging a handle
-     */
-    endDrag() {
-        if (!this.dragging) return;
-        
-        // Remove dragging class
-        if (this.dragging === 'min') {
-            this.minHandle.classList.remove('dragging');
-        } else {
-            this.maxHandle.classList.remove('dragging');
-        }
-        
-        this.dragging = null;
-    }
-    
-    /**
-     * Handle keyboard navigation
-     */
-    handleKeyDown(e, handle) {
-        let keyHandled = false;
-        const step = this.options.step;
-        
-        if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') {
-            // Decrease value
-            if (handle === 'min') {
-                this.range[0] = Math.max(this.options.minYear, this.range[0] - step);
-            } else {
-                this.range[1] = Math.max(this.range[0] + step, this.range[1] - step);
-            }
-            keyHandled = true;
-        } else if (e.key === 'ArrowRight' || e.key === 'ArrowUp') {
-            // Increase value
-            if (handle === 'min') {
-                this.range[0] = Math.min(this.range[1] - step, this.range[0] + step);
-            } else {
-                this.range[1] = Math.min(this.options.maxYear, this.range[1] + step);
-            }
-            keyHandled = true;
-        } else if (e.key === 'Home') {
-            // Jump to min
-            if (handle === 'min') {
-                this.range[0] = this.options.minYear;
-            } else {
-                this.range[1] = this.range[0] + step;
-            }
-            keyHandled = true;
-        } else if (e.key === 'End') {
-            // Jump to max
-            if (handle === 'min') {
-                this.range[0] = this.range[1] - step;
-            } else {
-                this.range[1] = this.options.maxYear;
-            }
-            keyHandled = true;
-        }
-        
-        if (keyHandled) {
-            e.preventDefault();
-            
-            // Update aria values
-            if (handle === 'min') {
-                this.minHandle.setAttribute('aria-valuenow', this.range[0]);
-            } else {
-                this.maxHandle.setAttribute('aria-valuenow', this.range[1]);
-            }
-            
-            // Update UI
-            this.updateHandles();
-            this.updateDisplay();
-            this.updateTicksActive();
-            
-            // Call onChange callback
-            if (this.options.onChange) {
-                this.options.onChange(this.range);
-            }
-        }
+        this.triggerOnChange();
     }
     
     /**
      * Handle click on the track
      */
     handleTrackClick(e) {
-        // Calculate the position as percentage within track
+        // Only handle direct clicks on track (not handles or other elements)
+        if (e.target !== this.track) return;
+        
+        // Calculate position as percentage within track
         const trackRect = this.track.getBoundingClientRect();
         let percentage = (e.clientX - trackRect.left) / trackRect.width;
         percentage = Math.max(0, Math.min(1, percentage));
         
         // Convert to year value
-        const yearRange = this.options.maxYear - this.options.minYear;
-        const clickedYear = Math.round(percentage * yearRange) + this.options.minYear;
+        const clickedYear = Math.round(percentage * this.yearRange) + this.options.minYear;
         
         // Find closest handle to update
         const distToMin = Math.abs(this.range[0] - clickedYear);
         const distToMax = Math.abs(this.range[1] - clickedYear);
         
         if (distToMin <= distToMax) {
-            // Update min handle
-            this.range[0] = Math.min(clickedYear, this.range[1] - this.options.step);
-            this.minHandle.setAttribute('aria-valuenow', this.range[0]);
+            this.setHandleValue('min', clickedYear);
+            this.minHandle.focus();
         } else {
-            // Update max handle
-            this.range[1] = Math.max(clickedYear, this.range[0] + this.options.step);
-            this.maxHandle.setAttribute('aria-valuenow', this.range[1]);
+            this.setHandleValue('max', clickedYear);
+            this.maxHandle.focus();
         }
         
-        // Update UI
-        this.updateHandles();
+        // Update UI with animation
+        this.updateHandles(true);
         this.updateDisplay();
         this.updateTicksActive();
+        this.triggerOnChange();
+    }
+    
+    /**
+     * Reset timeline to original values with animation
+     */
+    resetTimeline() {
+        // Animate the reset
+        this.range = [...this.originalRange];
         
-        // Call onChange callback
-        if (this.options.onChange) {
-            this.options.onChange(this.range);
-        }
+        // Update ARIA values
+        this.updateARIA(this.minHandle, this.range[0]);
+        this.updateARIA(this.maxHandle, this.range[1]);
+        
+        // Update UI with animation
+        this.updateHandles(true);
+        this.updateDisplay();
+        this.updateTicksActive();
+        this.triggerOnChange();
     }
     
     /**
      * Update the positions of the handles
+     * @param {boolean} animate - Whether to animate the transition
      */
-    updateHandles() {
+    updateHandles(animate = false) {
         // Calculate positions as percentages
-        const minPercentage = (this.range[0] - this.options.minYear) / (this.options.maxYear - this.options.minYear) * 100;
-        const maxPercentage = (this.range[1] - this.options.minYear) / (this.options.maxYear - this.options.minYear) * 100;
+        const minPercentage = (this.range[0] - this.options.minYear) / this.yearRange * 100;
+        const maxPercentage = (this.range[1] - this.options.minYear) / this.yearRange * 100;
+        
+        if (animate) {
+            this.addTransition();
+        }
         
         // Update handle positions
         this.minHandle.style.left = `${minPercentage}%`;
@@ -458,15 +495,39 @@ class EnhancedTimelineFilter {
         // Update selected range
         this.selectedRange.style.left = `${minPercentage}%`;
         this.selectedRange.style.width = `${maxPercentage - minPercentage}%`;
+        
+        if (animate) {
+            this.removeTransitionAfterAnimation();
+        }
+    }
+    
+    /**
+     * Add transition effect to elements
+     */
+    addTransition() {
+        const transition = `all ${this.options.animationDuration}ms cubic-bezier(0.16, 1, 0.3, 1)`;
+        this.minHandle.style.transition = transition;
+        this.maxHandle.style.transition = transition;
+        this.selectedRange.style.transition = transition;
+    }
+    
+    /**
+     * Remove transition after animation completes
+     */
+    removeTransitionAfterAnimation() {
+        setTimeout(() => {
+            this.minHandle.style.transition = '';
+            this.maxHandle.style.transition = '';
+            this.selectedRange.style.transition = '';
+        }, this.options.animationDuration);
     }
     
     /**
      * Update the selected range display
      */
     updateDisplay() {
-        // Update min/max year display
-        const minYearDisplay = document.querySelector('.timeline-min-year');
-        const maxYearDisplay = document.querySelector('.timeline-max-year');
+        const minYearDisplay = this.valueDisplay.querySelector('.timeline-min-year');
+        const maxYearDisplay = this.valueDisplay.querySelector('.timeline-max-year');
         
         if (minYearDisplay) minYearDisplay.textContent = this.range[0];
         if (maxYearDisplay) maxYearDisplay.textContent = this.range[1];
@@ -480,12 +541,8 @@ class EnhancedTimelineFilter {
         
         const ticks = this.ticksContainer.querySelectorAll('.timeline-tick');
         ticks.forEach(tick => {
-            const year = parseInt(tick.dataset.year);
-            if (year >= this.range[0] && year <= this.range[1]) {
-                tick.classList.add('active');
-            } else {
-                tick.classList.remove('active');
-            }
+            const year = parseInt(tick.dataset.year, 10);
+            tick.classList.toggle('active', year >= this.range[0] && year <= this.range[1]);
         });
     }
     
@@ -499,140 +556,223 @@ class EnhancedTimelineFilter {
     /**
      * Set the range programmatically
      */
-    setRange(min, max) {
+    setRange(min, max, animate = false) {
         // Validate range
         min = Math.max(this.options.minYear, Math.min(min, max - this.options.step));
         max = Math.min(this.options.maxYear, Math.max(max, min + this.options.step));
         
         this.range = [min, max];
         
+        // Update ARIA values
+        this.updateARIA(this.minHandle, min);
+        this.updateARIA(this.maxHandle, max);
+        
         // Update UI
-        this.updateHandles();
+        this.updateHandles(animate);
         this.updateDisplay();
         this.updateTicksActive();
+    }
+    
+    /**
+     * Utility method for throttling function calls
+     */
+    throttle(func, delay) {
+        let lastCall = 0;
+        return function(...args) {
+            const now = Date.now();
+            if (now - lastCall >= delay) {
+                lastCall = now;
+                func.apply(this, args);
+            }
+        };
+    }
+    
+    /**
+     * Utility method for debouncing function calls
+     */
+    debounce(func, delay) {
+        let timeout;
+        return function(...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(this, args), delay);
+        };
+    }
+    
+    /**
+     * Clean up event listeners and observers to prevent memory leaks
+     */
+    destroy() {
+        // Remove event listeners
+        this.minHandle.removeEventListener('mousedown', this.boundEvents.minHandleMouseDown);
+        this.maxHandle.removeEventListener('mousedown', this.boundEvents.maxHandleMouseDown);
+        document.removeEventListener('mousemove', this.boundEvents.documentMouseMove);
+        document.removeEventListener('mouseup', this.boundEvents.documentMouseUp);
         
-        // Update ARIA values
-        this.minHandle.setAttribute('aria-valuenow', min);
-        this.maxHandle.setAttribute('aria-valuenow', max);
+        this.minHandle.removeEventListener('keydown', this.boundEvents.minHandleKeyDown);
+        this.maxHandle.removeEventListener('keydown', this.boundEvents.maxHandleKeyDown);
+        
+        this.track.removeEventListener('click', this.boundEvents.trackClick);
+        
+        // Clean up resize observer
+        if (this.resizeObserver) {
+            this.resizeObserver.disconnect();
+        }
+        
+        // Cancel any pending animation frames
+        if (this.lastAnimationFrame) {
+            cancelAnimationFrame(this.lastAnimationFrame);
+        }
     }
 }
 
 /**
- * Ensure all project cards have year badges
- * This is a helper function to make sure all cards have badges
+ * ProjectsFilter - Handles filtering and animation of project cards
  */
-function ensureProjectYearBadges() {
-    const projectCards = document.querySelectorAll('.project-card');
+class ProjectsFilter {
+    constructor(gridSelector, options = {}) {
+        this.grid = document.querySelector(gridSelector);
+        if (!this.grid) return;
+        
+        this.options = {
+            animationDuration: 300,
+            staggerDelay: 50,
+            ...options
+        };
+        
+        this.projects = this.grid.querySelectorAll('.project-card');
+        this.addYearBadges();
+    }
     
-    projectCards.forEach(card => {
-        const projectYear = card.getAttribute('data-year');
-        if (projectYear && !card.querySelector('.project-year-badge')) {
-            const badge = document.createElement('div');
-            badge.className = 'project-year-badge';
-            badge.textContent = projectYear;
-            
-            const imageContainer = card.querySelector('.project-image');
-            if (imageContainer) {
-                imageContainer.appendChild(badge);
-            }
-        }
-    });
-}
-
-// Initialize timeline filter when DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
-    // Ensure all project cards have year badges
-    ensureProjectYearBadges();
-    
-    // Check if timeline container exists
-    const timelineContainer = document.getElementById('projects-timeline');
-    if (!timelineContainer) return;
-    
-    // Create instance of enhanced timeline filter
-    const timelineFilter = new EnhancedTimelineFilter('projects-timeline', {
-        minYear: 2018,
-        maxYear: 2025,
-        initialRange: [2020, 2023],
-        onChange: function(range) {
-            // Filter projects based on year
-            filterProjectsByYear(range[0], range[1]);
-            
-            // Update URL with filter parameters
-            updateURLParams(range);
-        },
-        onInit: function(range) {
-            // Check URL for filter parameters
-            const params = new URLSearchParams(window.location.search);
-            const minYear = params.get('minYear');
-            const maxYear = params.get('maxYear');
-            
-            if (minYear && maxYear) {
-                timelineFilter.setRange(parseInt(minYear), parseInt(maxYear));
-                filterProjectsByYear(parseInt(minYear), parseInt(maxYear));
-            } else {
-                filterProjectsByYear(range[0], range[1]);
-            }
-            
-            // Add project year badges if they don't exist
-            addProjectYearBadges();
-        }
-    });
-    
-    // Add year badges to project cards
-    function addProjectYearBadges() {
-        const projectCards = document.querySelectorAll('.project-card');
-        projectCards.forEach(card => {
+    /**
+     * Add year badges to all project cards
+     */
+    addYearBadges() {
+        this.projects.forEach(card => {
             const year = card.getAttribute('data-year');
             if (year && !card.querySelector('.project-year-badge')) {
                 const badge = document.createElement('div');
                 badge.className = 'project-year-badge';
                 badge.textContent = year;
-                card.querySelector('.project-image').appendChild(badge);
+                
+                const imageContainer = card.querySelector('.project-image');
+                if (imageContainer) {
+                    imageContainer.appendChild(badge);
+                }
             }
         });
     }
     
-    // Filter projects by year
-    function filterProjectsByYear(minYear, maxYear) {
-        const projectCards = document.querySelectorAll('.project-card');
-        const projectsGrid = document.querySelector('.projects-grid');
+    /**
+     * Filter projects by year range with staggered animations
+     */
+    filterByYearRange(minYear, maxYear) {
+        if (!this.grid) return;
         
-        if (projectsGrid) {
-            projectsGrid.classList.add('filtering');
-        }
+        this.grid.classList.add('filtering');
+        let visibleCount = 0;
         
-        setTimeout(() => {
-            projectCards.forEach(card => {
-                const projectYear = parseInt(card.getAttribute('data-year'));
-                
-                if (projectYear >= minYear && projectYear <= maxYear) {
-                    card.classList.remove('filtered-out');
-                    card.classList.add('filtered-in');
-                    card.style.display = '';
-                } else {
-                    card.classList.remove('filtered-in');
-                    card.classList.add('filtered-out');
-                    setTimeout(() => {
-                        if (card.classList.contains('filtered-out')) {
-                            card.style.display = 'none';
-                        }
-                    }, 300);
-                }
-            });
+        // First pass: mark cards as visible/hidden
+        this.projects.forEach(card => {
+            const projectYear = parseInt(card.getAttribute('data-year'), 10);
+            const visible = projectYear >= minYear && projectYear <= maxYear;
             
-            if (projectsGrid) {
+            card.classList.toggle('filtered-in', visible);
+            card.classList.toggle('filtered-out', !visible);
+            
+            if (visible) visibleCount++;
+        });
+        
+        // Second pass: apply staggered animations and handle display
+        let delay = 0;
+        this.projects.forEach(card => {
+            if (card.classList.contains('filtered-in')) {
                 setTimeout(() => {
-                    projectsGrid.classList.remove('filtering');
-                }, 100);
+                    card.style.display = '';
+                    requestAnimationFrame(() => {
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    });
+                }, delay);
+                delay += this.options.staggerDelay;
+            } else {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    if (card.classList.contains('filtered-out')) {
+                        card.style.display = 'none';
+                    }
+                }, this.options.animationDuration);
             }
-        }, 50);
+        });
+        
+        // Show empty state if no projects match
+        this.toggleEmptyState(visibleCount === 0);
+        
+        // Remove filtering class when complete
+        setTimeout(() => {
+            this.grid.classList.remove('filtering');
+        }, delay + this.options.animationDuration);
     }
     
-    // Update URL parameters
-    function updateURLParams(range) {
-        const url = new URL(window.location);
-        url.searchParams.set('minYear', range[0]);
-        url.searchParams.set('maxYear', range[1]);
-        window.history.replaceState({}, '', url);
+    /**
+     * Toggle empty state message
+     */
+    toggleEmptyState(isEmpty) {
+        let emptyState = this.grid.querySelector('.empty-state');
+        
+        if (isEmpty && !emptyState) {
+            emptyState = document.createElement('div');
+            emptyState.className = 'empty-state';
+            emptyState.innerHTML = `
+                <p>No projects found in the selected time range.</p>
+                <p>Try adjusting your filter criteria.</p>
+            `;
+            this.grid.appendChild(emptyState);
+        } else if (!isEmpty && emptyState) {
+            emptyState.remove();
+        }
     }
+}
+
+// Initialize both components when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if timeline container exists
+    const timelineContainer = document.getElementById('projects-timeline');
+    if (!timelineContainer) return;
+    
+    // Create projects filter instance
+    const projectsFilter = new ProjectsFilter('.projects-grid');
+    
+    // Get URL parameters
+    const params = new URLSearchParams(window.location.search);
+    const urlMinYear = parseInt(params.get('minYear'), 10);
+    const urlMaxYear = parseInt(params.get('maxYear'), 10);
+    
+    // Create instance of enhanced timeline filter
+    const timelineFilter = new EnhancedTimelineFilter('projects-timeline', {
+        minYear: 2018,
+        maxYear: 2025,
+        initialRange: urlMinYear && urlMaxYear && !isNaN(urlMinYear) && !isNaN(urlMaxYear) 
+            ? [urlMinYear, urlMaxYear] 
+            : [2020, 2023],
+        onChange: function(range) {
+            // Filter projects based on year
+            projectsFilter.filterByYearRange(range[0], range[1]);
+            
+            // Update URL with filter parameters
+            const url = new URL(window.location);
+            url.searchParams.set('minYear', range[0]);
+            url.searchParams.set('maxYear', range[1]);
+            window.history.replaceState({}, '', url);
+        },
+        onInit: function(range) {
+            // Initial filtering
+            projectsFilter.filterByYearRange(range[0], range[1]);
+        }
+    });
+    
+    // Clean up on page unload to prevent memory leaks
+    window.addEventListener('beforeunload', () => {
+        timelineFilter.destroy();
+    });
 });

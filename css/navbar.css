@@ -1,16 +1,29 @@
-/* Navigation Bar Styles */
+/* ===== Navigation Bar Styles ===== */
 #navbar {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: var(--navbar-height);
-    background-color: rgba(var(--theme-dark-bg-rgb), 0.75);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background-color: rgba(var(--theme-dark-bg-rgb), 0.85);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     border-bottom: 1px solid var(--theme-accent-secondary);
     z-index: 100;
-    transition: all 0.3s ease;
+    transition: transform 0.3s ease, background-color 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Navbar scroll behavior - add .navbar-hidden class with JS on scroll down */
+#navbar.navbar-hidden {
+    transform: translateY(-100%);
+}
+
+/* Dark mode enhancement for better contrast */
+@media (prefers-color-scheme: dark) {
+    #navbar {
+        background-color: rgba(var(--theme-dark-bg-rgb), 0.92);
+    }
 }
 
 .navbar-content {
@@ -18,77 +31,131 @@
     justify-content: space-between;
     align-items: center;
     height: var(--navbar-height);
+    padding: 0 max(5%, 1rem);
 }
 
+/* Logo styles with improved accessibility */
 .navbar-logo a {
     font-family: 'Inter', sans-serif;
     font-weight: 600;
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     color: var(--theme-light-text);
     text-decoration: none;
-    transition: color 0.3s ease;
+    transition: color 0.3s ease, transform 0.2s ease;
+    display: inline-block;
 }
 
 .navbar-logo a:hover {
     color: var(--theme-accent-primary);
+    transform: scale(1.02);
 }
 
+.navbar-logo a:focus-visible {
+    outline: 2px solid var(--theme-accent-primary);
+    outline-offset: 4px;
+    border-radius: 2px;
+}
+
+/* Navigation links container */
 .navbar-links {
     display: flex;
-    gap: 2rem;
+    gap: 2.5rem;
     align-items: center;
 }
 
+/* Individual navigation links */
 .nav-link {
     font-family: 'Inter', sans-serif;
     font-weight: 500;
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     color: var(--theme-light-text);
     text-decoration: none;
-    transition: all 0.3s ease;
+    transition: all 0.25s ease;
     position: relative;
+    padding: 0.5rem 0;
+}
+
+.nav-link:after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 0;
+    background-color: var(--theme-accent-primary);
+    transition: width 0.3s ease;
+}
+
+.nav-link:hover:after,
+.nav-link.active:after {
+    width: 100%;
 }
 
 .nav-link:hover {
     color: var(--theme-accent-primary);
 }
 
-.nav-link.active {
-    color: var(--theme-accent-primary);
-    border-bottom: 2px solid var(--theme-accent-primary);
-    padding-bottom: 4px;
+.nav-link:focus-visible {
+    outline: 2px solid var(--theme-accent-primary);
+    outline-offset: 4px;
+    border-radius: 2px;
 }
 
+.nav-link.active {
+    color: var(--theme-accent-primary);
+    font-weight: 600;
+}
+
+/* Call-to-action button */
 .btn-nav {
     font-family: 'Inter', sans-serif;
     font-weight: 500;
     font-size: 0.85rem;
     text-decoration: none;
     color: var(--theme-accent-primary);
-    padding: 0.5rem 1rem;
+    padding: 0.6rem 1.2rem;
     border: 1px solid var(--theme-accent-primary);
-    border-radius: 4px;
+    border-radius: 6px;
     transition: all 0.3s ease;
+    background-color: transparent;
 }
 
 .btn-nav:hover {
-    background-color: rgba(var(--theme-accent-primary-rgb), 0.1);
+    background-color: rgba(var(--theme-accent-primary-rgb), 0.15);
     transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(var(--theme-accent-primary-rgb), 0.2);
 }
 
-/* Mobile Navigation */
+.btn-nav:active {
+    transform: translateY(0);
+}
+
+.btn-nav:focus-visible {
+    outline: 2px solid var(--theme-accent-primary);
+    outline-offset: 4px;
+}
+
+/* ===== Mobile Navigation ===== */
 .mobile-menu-btn {
     display: none;
     background: none;
     border: none;
     color: var(--theme-light-text);
-    font-size: 1.2rem;
+    font-size: 1.5rem;
     cursor: pointer;
-    transition: color 0.3s ease;
+    transition: color 0.3s ease, transform 0.2s ease;
+    padding: 0.5rem;
+    border-radius: 4px;
 }
 
 .mobile-menu-btn:hover {
     color: var(--theme-accent-primary);
+    transform: scale(1.1);
+}
+
+.mobile-menu-btn:focus-visible {
+    outline: 2px solid var(--theme-accent-primary);
+    outline-offset: 2px;
 }
 
 .mobile-nav {
@@ -104,9 +171,11 @@
     align-items: center;
     z-index: 99;
     transform: translateY(-100%);
-    transition: transform 0.4s ease;
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
     opacity: 0;
     visibility: hidden;
+    overflow-y: auto;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
 .mobile-nav.active {
@@ -120,27 +189,73 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 2rem;
-    padding: 3rem 0;
+    gap: 2.5rem;
+    padding: 4rem 0;
     width: 100%;
+    animation: fadeIn 0.4s ease forwards;
+    will-change: opacity, transform; /* Performance optimization */
+    backface-visibility: hidden; /* Performance optimization */
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .mobile-nav .nav-link {
-    font-size: 1.2rem;
-    padding: 0.5rem 0;
+    font-size: 1.3rem;
+    padding: 0.7rem 0;
 }
 
 .mobile-nav .btn-nav {
-    margin-top: 1rem;
+    margin-top: 1.5rem;
+    padding: 0.8rem 2rem;
+    font-size: 1rem;
 }
 
-/* Responsive Styles for Navbar */
+/* ===== Responsive Styles ===== */
 @media (max-width: 768px) {
     .desktop-nav {
         display: none;
     }
     
     .mobile-menu-btn {
-        display: block;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .navbar-content {
+        padding: 0 1rem;
+    }
+}
+
+/* Extra small devices */
+@media (max-width: 480px) {
+    .navbar-logo a {
+        font-size: 1rem;
+    }
+    
+    .mobile-nav .nav-link {
+        font-size: 1.2rem;
+    }
+}
+
+/* Support for reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+    #navbar,
+    .nav-link,
+    .btn-nav,
+    .mobile-nav,
+    .navbar-logo a {
+        transition: none;
+    }
+    
+    .btn-nav:hover {
+        transform: none;
+    }
+    
+    .mobile-nav-content {
+        animation: none;
     }
 }

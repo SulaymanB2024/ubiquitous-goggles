@@ -2,6 +2,7 @@
  * Advanced Strategic Network Visualization
  * Palantir-grade visualization of interconnected data points with real-time analysis
  * Optimized for performance with WebGL acceleration and efficient rendering
+ * @version 1.3.0
  */
 
 class NetworkVisualization {
@@ -23,6 +24,24 @@ class NetworkVisualization {
         this.frameCount = 0;
         this.fps = 60;
         this.layoutStabilized = false;
+        
+        // Enhanced visual effects configuration
+        this.visualEffects = {
+            nodeGlow: true,
+            linkAnimation: true,
+            pulseEffect: true,
+            interactiveHighlighting: true,
+            nodeHighlightIntensity: 2.0,
+            nodeHighlightSpread: 1.5,
+            highlightTransitionDuration: 300,
+            particleEffects: true,
+            particleCount: 8,
+            particleLifespan: 60
+        };
+        
+        // Particle system
+        this.particles = [];
+        this.lastParticleUpdate = 0;
         
         // Enhanced visual configuration
         this.categoryColors = {
@@ -256,48 +275,593 @@ class NetworkVisualization {
      * Create the visualization elements
      */
     createVisualization() {
-        // Create links
-        this.links = d3.select(this.svg)
-            .selectAll("line")
+        // Create container for links and link effects
+        const linksGroup = d3.select(this.svg)
+            .append("g")
+            .attr("class", "links-group");
+            
+        // Create link highlight effects for later use
+        this.linkHighlights = linksGroup
+            .selectAll(".link-highlight")
             .data(this.data.links)
             .enter()
             .append("line")
-            .attr("stroke", "rgba(255, 255, 255, 0.1)")
-            .attr("stroke-width", d => d.strength * 2);
+            .attr("class", "link-highlight")
+            .attr("stroke", "rgba(var(--theme-accent-primary-rgb), 0.7)")
+            .attr("stroke-width", d => (d.strength * 2) + 4)
+            .attr("stroke-dasharray", "5,5")
+            .attr("opacity", 0)
+            .attr("stroke-linecap", "round");
+            
+        // Create animated link particles container
+        const linkParticlesGroup = d3.select(this.svg)
+            .append("g")
+            .attr("class", "link-particles-group");
+            
+        // Create standard links
+        this.links = linksGroup
+            .selectAll(".link-standard")
+            .data(this.data.links)
+            .enter()
+            .append("line")
+            .attr("class", "link-standard")
+            .attr("stroke", d => this.visualEffects.linkAnimation ? 
+                `url(#network-link-gradient-${d.type || 'default'})` : 
+                "rgba(255, 255, 255, 0.15)")
+            .attr("stroke-width", d => d.strength * 2.5)
+            .attr("stroke-opacity", 0.8)
+            .attr("stroke-linecap", "round");
         
-        // Create nodes
-        this.nodes = d3.select(this.svg)
-            .selectAll("circle")
+        // Create nodes container
+        const nodesGroup = d3.select(this.svg)
+            .append("g")
+            .attr("class", "nodes-group");
+            
+        // Create node glow effects (appear on hover)
+        this.nodeGlows = nodesGroup
+            .selectAll(".node-glow")
             .data(this.data.nodes)
             .enter()
             .append("circle")
+            .attr("class", "node-glow")
+            .attr("r", d => this.getNodeRadius(d) * 2.5)
+            .attr("fill", d => `url(#network-node-glow-${d.category})`)
+            .attr("opacity", 0)
+            .attr("pointer-events", "none");
+        
+        // Create nodes with enhanced styling
+        this.nodes = nodesGroup
+            .selectAll(".node")
+            .data(this.data.nodes)
+            .enter()
+            .append("circle")
+            .attr("class", d => `node node-${d.category}`)
             .attr("r", d => this.getNodeRadius(d))
-            .attr("fill", d => this.getNodeColor(d))
-            .attr("stroke", "#0A0F1F")
-            .attr("stroke-width", 2)
+            .attr("fill", d => this.visualEffects.nodeGlow ? 
+                `url(#network-node-gradient-${d.category})` : 
+                this.getNodeColor(d))
+            .attr("stroke", d => d3.color(this.getNodeColor(d)).darker(0.5))
+            .attr("stroke-width", 1.5)
+            .attr("filter", "url(#network-node-shadow)")
             .call(d3.drag()
                 .on("start", this.dragstarted.bind(this))
                 .on("drag", this.dragged.bind(this))
                 .on("end", this.dragended.bind(this)));
+                
+        // Add pulse animation to important nodes
+        if (this.visualEffects.pulseEffect) {
+            this.nodes
+                .filter(d => d.weight > 85)
+                .append("animate")
+                .attr("attributeName", "r")
+                .attr("from", d => this.getNodeRadius(d))
+                .attr("to", d => this.getNodeRadius(d) * 1.15)
+                .attr("dur", d => 1 + Math.random() * 2 + "s")
+                .attr("repeatCount", "indefinite")
+                .attr("calcMode", "spline")
+                .attr("keySplines", "0.42 0 0.58 1; 0.42 0 0.58 1")
+                .attr("keyTimes", "0; 0.5; 1")
+                .attr("values", d => {
+                    const r = this.getNodeRadius(d);
+                    return `${r}; ${r * 1.15}; ${r}`;
+                });
+        }
         
-        // Add hover interaction
+        // Add hover and click interactions
         this.nodes
-            .on("mouseover", this.showTooltip.bind(this))
+            .on("mouseover", this.nodeMouseover.bind(this))
             .on("mousemove", this.moveTooltip.bind(this))
-            .on("mouseout", this.hideTooltip.bind(this))
+            .on("mouseout", this.nodeMouseout.bind(this))
             .on("click", this.highlightConnections.bind(this));
         
-        // Add labels for larger nodes
-        d3.select(this.svg)
-            .selectAll("text")
-            .data(this.data.nodes.filter(d => d.weight > 70))
+        // Create node labels with enhanced styling
+        this.labels = d3.select(this.svg)
+            .selectAll(".node-label")
+            .data(this.data.nodes)
             .enter()
             .append("text")
+            .attr("class", "node-label")
             .attr("text-anchor", "middle")
-            .attr("font-size", "10px")
-            .attr("fill", "#E0E7FF")
+            .attr("dominant-baseline", "central")
+            .attr("y", d => this.getNodeRadius(d) + 12)
+            .attr("font-size", d => Math.min(11, 8 + (d.weight / 30)) + "px")
+            .attr("fill", "rgba(255, 255, 255, 0.85)")
+            .attr("opacity", d => d.weight > 75 ? 0.9 : 0.5)
             .attr("pointer-events", "none")
+            .attr("filter", "url(#network-text-shadow)")
             .text(d => this.getNodeShortLabel(d));
+            
+        // Create defs for filters and gradients
+        this.createEnhancedVisualElements();
+    }
+    
+    /**
+     * Create enhanced visual elements like filters, gradients and patterns
+     */
+    createEnhancedVisualElements() {
+        const defs = d3.select(this.svg).select("defs");
+        if (defs.empty()) {
+            defs = d3.select(this.svg).append("defs");
+        }
+        
+        // Create shadow filter for nodes
+        const nodeShadow = defs.append("filter")
+            .attr("id", "network-node-shadow")
+            .attr("x", "-50%")
+            .attr("y", "-50%")
+            .attr("width", "200%")
+            .attr("height", "200%");
+            
+        nodeShadow.append("feDropShadow")
+            .attr("dx", 0)
+            .attr("dy", 0)
+            .attr("stdDeviation", 2.5)
+            .attr("flood-color", "rgba(0, 0, 0, 0.4)")
+            .attr("flood-opacity", 0.5);
+            
+        // Create text shadow filter
+        const textShadow = defs.append("filter")
+            .attr("id", "network-text-shadow")
+            .attr("x", "-50%")
+            .attr("y", "-50%")
+            .attr("width", "200%")
+            .attr("height", "200%");
+            
+        textShadow.append("feDropShadow")
+            .attr("dx", 0)
+            .attr("dy", 0)
+            .attr("stdDeviation", 1.5)
+            .attr("flood-color", "rgba(0, 0, 0, 0.8)")
+            .attr("flood-opacity", 0.9);
+        
+        // Create enhanced gradients for each category
+        Object.keys(this.categoryColors).forEach(category => {
+            const color = this.categoryColors[category];
+            const colorObj = d3.color(color);
+            
+            // Node gradient (center to edge)
+            const nodeGradient = defs.append("radialGradient")
+                .attr("id", `network-node-gradient-${category}`)
+                .attr("cx", "50%")
+                .attr("cy", "50%")
+                .attr("r", "50%")
+                .attr("fx", "25%")
+                .attr("fy", "25%");
+                
+            nodeGradient.append("stop")
+                .attr("offset", "0%")
+                .attr("stop-color", d3.color(color).brighter(0.5))
+                .attr("stop-opacity", 0.95);
+                
+            nodeGradient.append("stop")
+                .attr("offset", "85%")
+                .attr("stop-color", color)
+                .attr("stop-opacity", 0.95);
+                
+            nodeGradient.append("stop")
+                .attr("offset", "100%")
+                .attr("stop-color", d3.color(color).darker(0.7))
+                .attr("stop-opacity", 0.8);
+                
+            // Node glow effect
+            const glowGradient = defs.append("radialGradient")
+                .attr("id", `network-node-glow-${category}`)
+                .attr("cx", "50%")
+                .attr("cy", "50%")
+                .attr("r", "50%");
+                
+            glowGradient.append("stop")
+                .attr("offset", "0%")
+                .attr("stop-color", color)
+                .attr("stop-opacity", 0.7);
+                
+            glowGradient.append("stop")
+                .attr("offset", "40%")
+                .attr("stop-color", color)
+                .attr("stop-opacity", 0.3);
+                
+            glowGradient.append("stop")
+                .attr("offset", "100%")
+                .attr("stop-color", color)
+                .attr("stop-opacity", 0);
+        });
+        
+        // Create link gradients for different link types
+        const linkTypes = ['default', 'strong', 'weak', 'influenced'];
+        linkTypes.forEach(type => {
+            const linkGradient = defs.append("linearGradient")
+                .attr("id", `network-link-gradient-${type}`)
+                .attr("x1", "0%")
+                .attr("y1", "0%")
+                .attr("x2", "100%")
+                .attr("y2", "0%")
+                .attr("gradientUnits", "userSpaceOnUse")
+                .attr("spreadMethod", "reflect");
+                
+            let color1, color2, opacity;
+            
+            switch(type) {
+                case 'strong':
+                    color1 = "rgba(var(--theme-accent-primary-rgb), 0.9)";
+                    color2 = "rgba(var(--theme-accent-secondary-rgb), 0.7)";
+                    opacity = 0.9;
+                    break;
+                case 'weak':
+                    color1 = "rgba(255, 255, 255, 0.2)";
+                    color2 = "rgba(255, 255, 255, 0.1)";
+                    opacity = 0.6;
+                    break;
+                case 'influenced':
+                    color1 = "rgba(var(--theme-accent-secondary-rgb), 0.7)";
+                    color2 = "rgba(var(--theme-accent-secondary-rgb), 0.3)";
+                    opacity = 0.8;
+                    break;
+                default:
+                    color1 = "rgba(255, 255, 255, 0.3)";
+                    color2 = "rgba(255, 255, 255, 0.1)";
+                    opacity = 0.7;
+            }
+            
+            // Add animated gradient effect
+            linkGradient.append("stop")
+                .attr("offset", "0%")
+                .attr("stop-color", color1)
+                .attr("stop-opacity", opacity);
+                
+            linkGradient.append("stop")
+                .attr("offset", "50%")
+                .attr("stop-color", color2)
+                .attr("stop-opacity", opacity * 0.8);
+                
+            linkGradient.append("stop")
+                .attr("offset", "100%")
+                .attr("stop-color", color1)
+                .attr("stop-opacity", opacity);
+                
+            // Add animation for link gradients
+            if (this.visualEffects.linkAnimation) {
+                linkGradient.append("animate")
+                    .attr("attributeName", "x1")
+                    .attr("values", "-100%;0%")
+                    .attr("dur", "3s")
+                    .attr("repeatCount", "indefinite");
+                    
+                linkGradient.append("animate")
+                    .attr("attributeName", "x2")
+                    .attr("values", "0%;100%")
+                    .attr("dur", "3s")
+                    .attr("repeatCount", "indefinite");
+            }
+        });
+    }
+    
+    /**
+     * Create and animate particles around a node
+     * @param {Object} d - The node data
+     * @param {number} x - X position
+     * @param {number} y - Y position
+     */
+    createParticles(d, x, y) {
+        if (!this.visualEffects.particleEffects) return;
+        
+        const color = this.getNodeColor(d);
+        const count = this.visualEffects.particleCount;
+        
+        for (let i = 0; i < count; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const speed = 0.5 + Math.random() * 2;
+            const size = 1 + Math.random() * 3;
+            const life = this.visualEffects.particleLifespan + Math.random() * 30;
+            
+            this.particles.push({
+                x: x,
+                y: y,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed,
+                size: size,
+                color: color,
+                life: life,
+                maxLife: life,
+                node: d
+            });
+        }
+    }
+    
+    /**
+     * Update and render particles
+     */
+    updateParticles() {
+        if (!this.visualEffects.particleEffects || this.particles.length === 0) return;
+        
+        // Remove existing particles
+        d3.select(this.svg).selectAll(".network-particle").remove();
+        
+        // Update particle positions
+        this.particles.forEach((p, i) => {
+            // Update position
+            p.x += p.vx;
+            p.y += p.vy;
+            
+            // Apply gravity and friction
+            p.vy += 0.05;
+            p.vx *= 0.99;
+            p.vy *= 0.99;
+            
+            // Decrease life
+            p.life--;
+            
+            // Remove dead particles
+            if (p.life <= 0) {
+                this.particles.splice(i, 1);
+                return;
+            }
+        });
+        
+        // Render particles
+        d3.select(this.svg).select(".nodes-group")
+            .selectAll(".network-particle")
+            .data(this.particles)
+            .enter()
+            .append("circle")
+            .attr("class", "network-particle")
+            .attr("cx", p => p.x)
+            .attr("cy", p => p.y)
+            .attr("r", p => p.size * (p.life / p.maxLife))
+            .attr("fill", p => {
+                const color = d3.color(p.color);
+                color.opacity = 0.7 * (p.life / p.maxLife);
+                return color.toString();
+            })
+            .attr("pointer-events", "none");
+    }
+    
+    /**
+     * Enhanced node mouseover with interactive highlighting
+     */
+    nodeMouseover(event, d) {
+        if (!this.visualEffects.interactiveHighlighting) {
+            this.showTooltip(event, d);
+            return;
+        }
+        
+        // Highlight the node
+        this.highlightedNode = d;
+        
+        // Find connected nodes and links
+        const connectedNodeIds = this.getConnectedNodes(d.id);
+        connectedNodeIds.add(d.id);
+        
+        // Enhanced node styling
+        this.nodes
+            .transition()
+            .duration(this.visualEffects.highlightTransitionDuration)
+            .attr("opacity", node => connectedNodeIds.has(node.id) ? 1 : 0.3)
+            .attr("r", node => {
+                const radius = this.getNodeRadius(node);
+                return node.id === d.id ? radius * 1.2 : radius;
+            });
+            
+        // Show glow effect on hovered node
+        this.nodeGlows
+            .filter(node => node.id === d.id)
+            .transition()
+            .duration(this.visualEffects.highlightTransitionDuration)
+            .attr("opacity", 0.7);
+            
+        // Highlight connected links
+        this.links
+            .transition()
+            .duration(this.visualEffects.highlightTransitionDuration)
+            .attr("stroke-opacity", link => 
+                (link.source.id === d.id || link.target.id === d.id) ? 0.9 : 0.1)
+            .attr("stroke-width", link => {
+                const width = link.strength * 2.5;
+                return (link.source.id === d.id || link.target.id === d.id) ? width * 1.5 : width;
+            });
+            
+        // Add visual trails on links connected to this node
+        this.linkHighlights
+            .filter(link => link.source.id === d.id || link.target.id === d.id)
+            .transition()
+            .duration(this.visualEffects.highlightTransitionDuration)
+            .attr("opacity", 0.7)
+            .attr("stroke-dashoffset", 30);
+            
+        // Enhance connected node labels
+        this.labels
+            .transition()
+            .duration(this.visualEffects.highlightTransitionDuration)
+            .attr("opacity", node => {
+                if (node.id === d.id) return 1;
+                if (connectedNodeIds.has(node.id)) return 0.9;
+                return 0.2;
+            })
+            .attr("font-size", node => {
+                const size = Math.min(11, 8 + (node.weight / 30));
+                return node.id === d.id ? (size * 1.2) + "px" : size + "px";
+            })
+            .attr("y", node => {
+                const radius = this.getNodeRadius(node);
+                return node.id === d.id ? (radius * 1.2) + 14 : radius + 12;
+            });
+            
+        // Create particles around the highlighted node
+        if (this.visualEffects.particleEffects) {
+            this.createParticles(d, d.x, d.y);
+        }
+        
+        // Show enhanced tooltip
+        this.showEnhancedTooltip(event, d);
+    }
+    
+    /**
+     * Node mouseout handler
+     */
+    nodeMouseout(event, d) {
+        if (!this.visualEffects.interactiveHighlighting || this.selectedNodes.size > 0) {
+            this.hideTooltip();
+            return;
+        }
+        
+        // Reset highlighted state
+        this.highlightedNode = null;
+        
+        // Restore normal node appearance
+        this.nodes
+            .transition()
+            .duration(this.visualEffects.highlightTransitionDuration)
+            .attr("opacity", 1)
+            .attr("r", node => this.getNodeRadius(node));
+            
+        // Hide node glow
+        this.nodeGlows
+            .transition()
+            .duration(this.visualEffects.highlightTransitionDuration)
+            .attr("opacity", 0);
+            
+        // Restore normal link appearance
+        this.links
+            .transition()
+            .duration(this.visualEffects.highlightTransitionDuration)
+            .attr("stroke-opacity", 0.8)
+            .attr("stroke-width", link => link.strength * 2.5);
+            
+        // Hide link highlights
+        this.linkHighlights
+            .transition()
+            .duration(this.visualEffects.highlightTransitionDuration)
+            .attr("opacity", 0);
+            
+        // Restore normal label appearance
+        this.labels
+            .transition()
+            .duration(this.visualEffects.highlightTransitionDuration)
+            .attr("opacity", node => node.weight > 75 ? 0.9 : 0.5)
+            .attr("font-size", node => Math.min(11, 8 + (node.weight / 30)) + "px")
+            .attr("y", node => this.getNodeRadius(node) + 12);
+            
+        // Hide tooltip
+        this.hideTooltip();
+    }
+    
+    /**
+     * Show an enhanced tooltip with more information
+     */
+    showEnhancedTooltip(event, d) {
+        // Create tooltip content with more information and visual enhancements
+        this.tooltip.innerHTML = `
+            <div class="network-tooltip-header">
+                <div class="network-tooltip-title">${d.name}</div>
+                <div class="network-tooltip-badge" style="background-color: ${this.getNodeColor(d)}">
+                    ${d.category.toUpperCase()}
+                </div>
+            </div>
+            <div class="network-tooltip-type">${d.type.toUpperCase()}</div>
+            <div class="network-tooltip-weight">
+                <span>Significance:</span>
+                <div class="network-tooltip-weight-bar">
+                    <div class="network-tooltip-weight-fill" style="width: ${d.weight}%; background-color: ${this.getNodeColor(d)}"></div>
+                </div>
+                <span>${d.weight}%</span>
+            </div>
+            ${d.description ? `<div class="network-tooltip-description">${d.description}</div>` : ''}
+            <div class="network-tooltip-connections">
+                <span>Connections: ${this.getConnectedNodes(d.id).size}</span>
+                <span class="network-tooltip-hint">Click to explore relationships</span>
+            </div>
+        `;
+        
+        this.tooltip.classList.add("network-tooltip-enhanced");
+        this.tooltip.style.display = "block";
+        this.moveTooltip(event);
+        
+        // Add entrance animation
+        this.tooltip.animate(
+            [
+                { opacity: 0, transform: 'translateY(10px)' },
+                { opacity: 1, transform: 'translateY(0)' }
+            ],
+            {
+                duration: 200,
+                easing: 'cubic-bezier(0.215, 0.61, 0.355, 1)',
+                fill: 'forwards'
+            }
+        );
+    }
+    
+    /**
+     * Move tooltip with mouse - with improved positioning logic
+     */
+    moveTooltip(event) {
+        if (!this.tooltip) return;
+        
+        const tooltipWidth = this.tooltip.offsetWidth;
+        const tooltipHeight = this.tooltip.offsetHeight;
+        const margin = 15;
+        const containerRect = this.container.getBoundingClientRect();
+        
+        // Calculate initial position
+        let x = event.pageX - containerRect.left - window.scrollX + margin;
+        let y = event.pageY - containerRect.top - window.scrollY - tooltipHeight - margin;
+        
+        // Check boundaries and adjust if needed
+        if (x + tooltipWidth > this.width) {
+            x = event.pageX - containerRect.left - window.scrollX - tooltipWidth - margin;
+        }
+        
+        if (y < 0) {
+            y = event.pageY - containerRect.top - window.scrollY + margin;
+        }
+        
+        // Apply position
+        this.tooltip.style.left = `${x}px`;
+        this.tooltip.style.top = `${y}px`;
+    }
+    
+    /**
+     * Hide tooltip
+     */
+    hideTooltip() {
+        if (!this.tooltip) return;
+        
+        // Add exit animation
+        const animation = this.tooltip.animate(
+            [
+                { opacity: 1, transform: 'translateY(0)' },
+                { opacity: 0, transform: 'translateY(10px)' }
+            ],
+            {
+                duration: 150,
+                easing: 'ease-out',
+                fill: 'forwards'
+            }
+        );
+        
+        // Hide tooltip after animation completes
+        animation.onfinish = () => {
+            this.tooltip.style.display = "none";
+            this.tooltip.classList.remove("network-tooltip-enhanced");
+        };
     }
     
     /**
@@ -383,37 +947,6 @@ class NetworkVisualization {
         `;
         this.tooltip.style.display = "block";
         this.moveTooltip(event);
-    }
-    
-    /**
-     * Move tooltip with mouse
-     */
-    moveTooltip(event) {
-        const tooltipWidth = this.tooltip.offsetWidth;
-        const tooltipHeight = this.tooltip.offsetHeight;
-        const margin = 10;
-        
-        let x = event.pageX - this.container.getBoundingClientRect().left + 10;
-        let y = event.pageY - this.container.getBoundingClientRect().top - tooltipHeight - margin;
-        
-        // Adjust if tooltip goes out of bounds
-        if (x + tooltipWidth > this.width) {
-            x = event.pageX - this.container.getBoundingClientRect().left - tooltipWidth - margin;
-        }
-        
-        if (y < 0) {
-            y = event.pageY - this.container.getBoundingClientRect().top + margin;
-        }
-        
-        this.tooltip.style.left = `${x}px`;
-        this.tooltip.style.top = `${y}px`;
-    }
-    
-    /**
-     * Hide tooltip when not hovering on node
-     */
-    hideTooltip() {
-        this.tooltip.style.display = "none";
     }
     
     /**
