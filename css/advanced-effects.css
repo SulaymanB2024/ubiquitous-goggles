@@ -545,3 +545,240 @@
 .section-contact {
   position: relative;
 }
+
+/* Dynamic HUD elements */
+.dynamic-hud-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+.hud-element {
+  position: absolute;
+  background-color: rgba(var(--theme-dark-bg-rgb), 0.8);
+  border: 1px solid var(--theme-accent-secondary);
+  border-radius: 4px;
+  padding: 10px;
+  width: 200px;
+  color: var(--theme-medium-text);
+  font-family: 'Roboto Mono', monospace;
+  font-size: 0.7rem;
+  backdrop-filter: blur(5px);
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  opacity: 0.85;
+}
+
+.hud-element:hover {
+  opacity: 1;
+}
+
+.hud-element.top-left {
+  top: 20px;
+  left: 20px;
+}
+
+.hud-element.top-right {
+  top: 20px;
+  right: 20px;
+}
+
+.hud-element.bottom-left {
+  bottom: 20px;
+  left: 20px;
+}
+
+.hud-element.bottom-right {
+  bottom: 20px;
+  right: 20px;
+}
+
+.hud-title {
+  color: var(--theme-accent-primary);
+  font-size: 0.75rem;
+  margin-bottom: 8px;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--theme-border-dark);
+  padding-bottom: 6px;
+  text-transform: uppercase;
+  position: relative;
+}
+
+.hud-title::before {
+  content: '';
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  right: 0;
+  top: 4px;
+  background-color: var(--theme-accent-primary);
+  border-radius: 50%;
+  animation: hudblink 2s infinite;
+}
+
+@keyframes hudblink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0.3; }
+}
+
+.hud-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.hud-item {
+  display: flex;
+  align-items: center;
+  font-size: 0.7rem;
+}
+
+.hud-label {
+  flex: 0 0 75px;
+  color: var(--theme-light-text);
+  opacity: 0.7;
+}
+
+.hud-progress {
+  flex: 1;
+  height: 4px;
+  background-color: rgba(var(--theme-accent-secondary-rgb), 0.3);
+  border-radius: 2px;
+  margin-right: 8px;
+  overflow: hidden;
+}
+
+.hud-progress-bar {
+  height: 100%;
+  background-color: var(--theme-accent-primary);
+  width: 0;
+  transition: width 0.5s ease;
+}
+
+.hud-progress-bar.warning {
+  background-color: var(--theme-error);
+}
+
+.hud-value {
+  color: var(--theme-light-text);
+  text-align: right;
+  min-width: 40px;
+}
+
+.hud-value.large {
+  font-size: 1.2rem;
+  letter-spacing: 0.05em;
+}
+
+.hud-mini-log {
+  max-height: 80px;
+  overflow-y: auto;
+}
+
+.hud-log-entry {
+  font-size: 0.65rem;
+  line-height: 1.4;
+  color: var(--theme-medium-text);
+  margin-bottom: 3px;
+  transition: background-color 0.3s ease;
+}
+
+.hud-log-entry.highlight {
+  background-color: rgba(var(--theme-accent-primary-rgb), 0.2);
+  animation: fadeHighlight 2s forwards;
+}
+
+@keyframes fadeHighlight {
+  0% { background-color: rgba(var(--theme-accent-primary-rgb), 0.2); }
+  100% { background-color: transparent; }
+}
+
+.hud-element.ping {
+  animation: hudPing 1s ease;
+}
+
+@keyframes hudPing {
+  0% { box-shadow: 0 0 0 0 rgba(var(--theme-accent-primary-rgb), 0.7); }
+  70% { box-shadow: 0 0 0 6px rgba(var(--theme-accent-primary-rgb), 0); }
+  100% { box-shadow: 0 0 0 0 rgba(var(--theme-accent-primary-rgb), 0); }
+}
+
+/* Cursor Trail Effect Canvas */
+.cursor-trail-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9998;
+}
+
+/* Focus Mode Canvas */
+.focus-mode-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 5;
+  transition: opacity 0.5s ease;
+}
+
+/* Blueprint Grid Canvas */
+.blueprint-grid-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.12;
+}
+
+/* Data Flow Canvas */
+.data-flow-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.15;
+}
+
+/* Mobile adaptations */
+@media (max-width: 768px) {
+  .hud-element {
+    width: 150px;
+    font-size: 0.65rem;
+    padding: 8px;
+  }
+  
+  .hud-element.top-left,
+  .hud-element.top-right,
+  .hud-element.bottom-left,
+  .hud-element.bottom-right {
+    margin: 5px;
+  }
+  
+  .hud-title {
+    font-size: 0.7rem;
+    margin-bottom: 6px;
+  }
+  
+  .hud-label {
+    flex: 0 0 60px;
+  }
+  
+  .hud-value.large {
+    font-size: 1rem;
+  }
+}
