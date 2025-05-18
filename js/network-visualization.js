@@ -893,21 +893,118 @@ class NetworkVisualization {
      * Update the position of nodes and links on each tick of the simulation
      */
     ticked() {
+        // Check performance and adjust if needed
+        this.frameCount++;
+        const now = performance.now();
+        if (this.frameCount % 30 === 0) {
+            const elapsed = now - this.lastFrameTime;
+            this.fps = Math.round(30 / (elapsed / 1000));
+            
+            if (this.fps < 30 && this.config.adaptivePhysics) {
+                this.enablePerformanceMode();
+            }
+            
+            this.lastFrameTime = now;
+        }
+        
+        // Update link positions
         this.links
             .attr("x1", d => d.source.x)
             .attr("y1", d => d.source.y)
             .attr("x2", d => d.target.x)
             .attr("y2", d => d.target.y);
+            
+        // Update link highlight positions
+        if (this.linkHighlights) {
+            this.linkHighlights
+                .attr("x1", d => d.source.x)
+                .attr("y1", d => d.source.y)
+                .attr("x2", d => d.target.x)
+                .attr("y2", d => d.target.y);
+        }
         
+        // Keep nodes within bounds
         this.nodes
             .attr("cx", d => d.x = Math.max(this.getNodeRadius(d), Math.min(this.width - this.getNodeRadius(d), d.x)))
             .attr("cy", d => d.y = Math.max(this.getNodeRadius(d), Math.min(this.height - this.getNodeRadius(d), d.y)));
+            
+        // Update glow effect positions
+        if (this.nodeGlows) {
+            this.nodeGlows
+                .attr("cx", d => d.x)
+                .attr("cy", d => d.y);
+        }
         
-        // Update positions of labels
-        d3.select(this.svg)
-            .selectAll("text")
-            .attr("x", d => d.x)
-            .attr("y", d => d.y - this.getNodeRadius(d) - 7);
+        // Update label positions with improved positioning
+        if (this.labels) {
+            this.labels
+                .attr("x", d => d.x)
+                .attr("y", d => d.y + this.getNodeRadius(d) + 12);
+        }
+        
+        // Update particles if enabled
+        if (this.visualEffects.particleEffects && this.particles.length > 0) {
+            this.updateParticles();
+        }
+        
+        // Check if highlighted node moved and needs to create more particles
+        if (this.highlightedNode && this.visualEffects.particleEffects) {
+            // Only create particles occasionally for performance
+            if (Math.random() < 0.1) {
+                this.createParticles(
+                    this.highlightedNode, 
+                    this.highlightedNode.x, 
+                    this.highlightedNode.y
+                );
+            }
+        }
+        
+        // Check for layout stabilization
+        if (!this.layoutStabilized && this.simulation.alpha() < 0.05) {
+            this.layoutStabilized = true;
+            this.onLayoutStabilized();
+        }
+    }
+    
+    /**
+     * Called when the network layout has stabilized
+     */
+    onLayoutStabilized() {
+        // Add subtle entrance animations to nodes now that layout is stable
+        this.nodes
+            .style("opacity", 0)
+            .transition()
+            .duration(800)
+            .delay((d, i) => i * 10)
+            .style("opacity", 1);
+            
+        // Add entrance animation to labels
+        if (this.labels) {
+            this.labels
+                .style("opacity", 0)
+                .transition()
+                .duration(800)
+                .delay((d, i) => 500 + i * 15)
+                .style("opacity", d => d.weight > 75 ? 0.9 : 0.5);
+        }
+        
+        // Log to system log if available
+        if (window.SystemLog) {
+            window.SystemLog.addEntry({
+                type: "success",
+                category: "network",
+                message: "Network layout stabilized",
+                details: `Rendering ${this.data.nodes.length} nodes and ${this.data.links.length} connections`
+            });
+        }
+        
+        // Notify EventBus if available
+        if (window.EventBus) {
+            window.EventBus.publish('network:stabilized', {
+                nodeCount: this.data.nodes.length,
+                linkCount: this.data.links.length
+            });
+        }
     }
     
     /**
