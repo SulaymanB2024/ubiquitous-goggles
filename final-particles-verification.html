@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Final Particles Verification</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #0a0f1c;
+            color: #00bfff;
+            font-family: 'Courier New', monospace;
+        }
+        .test-container {
+            background: rgba(0, 191, 255, 0.1);
+            border: 1px solid #00bfff;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .status { margin: 5px 0; padding: 5px; }
+        .success { color: #00ff00; }
+        .error { color: #ff0040; }
+        .warning { color: #ffaa00; }
+        iframe {
+            width: 100%;
+            height: 500px;
+            border: 2px solid #00bfff;
+            margin: 10px 0;
+        }
+        button {
+            background: #00bfff;
+            color: #0a0f1c;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        button:hover {
+            background: #0099cc;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎯 Final Particles System Verification</h1>
+    
+    <div class="test-container">
+        <h3>📋 System Status</h3>
+        <div id="system-status"></div>
+        <button onclick="runFullDiagnostic()">Run Full Diagnostic</button>
+        <button onclick="testDirectAccess()">Test Direct Access</button>
+    </div>
+    
+    <div class="test-container">
+        <h3>🖼️ Live Portfolio View</h3>
+        <iframe src="http://localhost:8000" id="main-site"></iframe>
+        <button onclick="reloadSite()">Reload Site</button>
+        <button onclick="checkParticlesInSite()">Check Particles</button>
+    </div>
+    
+    <div class="test-container">
+        <h3>🔍 Diagnostic Results</h3>
+        <div id="diagnostic-results"></div>
+    </div>
+    
+    <script>
+        const systemStatus = document.getElementById('system-status');
+        const diagnosticResults = document.getElementById('diagnostic-results');
+        
+        function addStatus(container, message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const div = document.createElement('div');
+            div.className = `status ${type}`;
+            div.innerHTML = `[${timestamp}] ${message}`;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+            console.log(`[${timestamp}] ${message}`);
+        }
+        
+        async function checkFileAccess(url, name) {
+            try {
+                const response = await fetch(url);
+                if (response.ok) {
+                    addStatus(systemStatus, `✅ ${name} accessible (${response.status})`, 'success');
+                    return true;
+                } else {
+                    addStatus(systemStatus, `❌ ${name} not accessible (${response.status})`, 'error');
+                    return false;
+                }
+            } catch (error) {
+                addStatus(systemStatus, `❌ ${name} fetch error: ${error.message}`, 'error');
+                return false;
+            }
+        }
+        
+        async function runFullDiagnostic() {
+            addStatus(systemStatus, '🚀 Starting full diagnostic...', 'info');
+            
+            // Check all required files
+            const files = [
+                ['/js/particles.min.js', 'Particles Library'],
+                ['/js/particles-config.js', 'Particles Config'],
+                ['/css/particles-fix.css', 'Particles CSS Fix'],
+                ['/css/enhanced-hero.css', 'Enhanced Hero CSS'],
+                ['/index.html', 'Main Portfolio Page']
+            ];
+            
+            let allGood = true;
+            for (const [url, name] of files) {
+                const ok = await checkFileAccess(url, name);
+                if (!ok) allGood = false;
+            }
+            
+            if (allGood) {
+                addStatus(systemStatus, '🎉 All files accessible - system ready!', 'success');
+            } else {
+                addStatus(systemStatus, '⚠️ Some files have issues', 'warning');
+            }
+        }
+        
+        function testDirectAccess() {
+            addStatus(diagnosticResults, '🔬 Testing direct particles access...', 'info');
+            
+            // Test in a new window
+            const testWindow = window.open('/direct-particles-test.html', '_blank', 'width=800,height=600');
+            if (testWindow) {
+                addStatus(diagnosticResults, '✅ Direct test window opened', 'success');
+            } else {
+                addStatus(diagnosticResults, '❌ Could not open test window', 'error');
+            }
+        }
+        
+        function reloadSite() {
+            const iframe = document.getElementById('main-site');
+            iframe.src = iframe.src;
+            addStatus(diagnosticResults, '🔄 Portfolio site reloaded', 'info');
+        }
+        
+        function checkParticlesInSite() {
+            addStatus(diagnosticResults, '🔍 Checking particles in main site...', 'info');
+            
+            const iframe = document.getElementById('main-site');
+            try {
+                const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                
+                // Check for particles container
+                const container = iframeDoc.getElementById('particles-js');
+                if (container) {
+                    addStatus(diagnosticResults, '✅ Particles container found in main site', 'success');
+                    
+                    // Check for canvas
+                    const canvas = iframeDoc.querySelector('#particles-js canvas');
+                    if (canvas) {
+                        addStatus(diagnosticResults, `🎨 Particles canvas found! (${canvas.width}x${canvas.height})`, 'success');
+                        
+                        // Check for particles
+                        const iframe_window = iframe.contentWindow;
+                        if (iframe_window.pJSDom && iframe_window.pJSDom[0]) {
+                            const particleCount = iframe_window.pJSDom[0].pJS.particles.array.length;
+                            addStatus(diagnosticResults, `🔢 Active particles: ${particleCount}`, 'success');
+                            
+                            if (particleCount > 0) {
+                                addStatus(diagnosticResults, '🎊 SUCCESS: Particles fully working in main site!', 'success');
+                            }
+                        } else {
+                            addStatus(diagnosticResults, '⚠️ Particles system not initialized yet', 'warning');
+                        }
+                    } else {
+                        addStatus(diagnosticResults, '❌ No canvas found in particles container', 'error');
+                    }
+                } else {
+                    addStatus(diagnosticResults, '❌ Particles container not found in main site', 'error');
+                }
+            } catch (error) {
+                addStatus(diagnosticResults, `⚠️ Cannot access iframe content: ${error.message}`, 'warning');
+                addStatus(diagnosticResults, '💡 This is normal due to same-origin policy', 'info');
+            }
+        }
+        
+        // Auto-run diagnostic on load
+        window.addEventListener('load', () => {
+            setTimeout(runFullDiagnostic, 1000);
+        });
+        
+        // Auto-check particles after iframe loads
+        document.getElementById('main-site').addEventListener('load', () => {
+            setTimeout(() => {
+                addStatus(diagnosticResults, '📱 Main site loaded, checking particles...', 'info');
+                setTimeout(checkParticlesInSite, 2000);
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

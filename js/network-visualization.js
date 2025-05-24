@@ -94,6 +94,9 @@ class NetworkVisualization {
         // Initialize enhanced network features
         this.initEnhancedFeatures();
         
+        // Set up cursor interaction for network
+        this.setupCursorInteraction();
+        
         // Create the force simulation
         this.createSimulation();
         
@@ -806,5 +809,218 @@ class NetworkVisualization {
         setTimeout(() => {
             this.container.classList.remove('network-flash');
         }, 800);
+    }
+    
+    /**
+     * Set up cursor interaction for network nodes
+     */
+    setupCursorInteraction() {
+        // Initialize mouse position tracking
+        this.mousePosition = {
+            x: this.width / 2,
+            y: this.height / 2
+        };
+        
+        // Throttle function for performance
+        const throttle = (func, limit) => {
+            let inThrottle;
+            return function() {
+                const args = arguments;
+                const context = this;
+                if (!inThrottle) {
+                    func.apply(context, args);
+                    inThrottle = true;
+                    setTimeout(() => inThrottle = false, limit);
+                }
+            };
+        };
+        
+        // Mouse move handler with throttling
+        const handleMouseMove = throttle((e) => {
+            const rect = this.container.getBoundingClientRect();
+            this.mousePosition.x = e.clientX - rect.left;
+            this.mousePosition.y = e.clientY - rect.top;
+            
+            // Update CSS custom properties for cursor position indicator
+            const mouseXPercent = (this.mousePosition.x / this.width) * 100;
+            const mouseYPercent = (this.mousePosition.y / this.height) * 100;
+            this.container.style.setProperty('--mouse-x', `${mouseXPercent}%`);
+            this.container.style.setProperty('--mouse-y', `${mouseYPercent}%`);
+            
+            // Update cursor indicator position
+            this.updateCursorIndicator();
+            
+            // Apply cursor attraction to nodes
+            this.applyCursorAttraction();
+        }, 16); // ~60fps
+        
+        // Add event listeners
+        this.container.addEventListener('mousemove', handleMouseMove);
+        
+        // Add cursor indicator for attraction radius
+        this.createCursorIndicator();
+        
+        // Reset mouse position when leaving container
+        this.container.addEventListener('mouseleave', () => {
+            this.mousePosition.x = this.width / 2;
+            this.mousePosition.y = this.height / 2;
+            this.hideCursorIndicator();
+        });
+        
+        // Show cursor indicator when entering container
+        this.container.addEventListener('mouseenter', () => {
+            this.showCursorIndicator();
+        });
+    }
+    
+    /**
+     * Apply cursor attraction force to network nodes
+     */
+    applyCursorAttraction() {
+        if (!this.simulation || !this.data.nodes) return;
+        
+        const attractForce = 80; // Attraction strength (higher = weaker)
+        const attractRadius = 180; // Attraction radius
+        const maxForce = 1.2; // Maximum force magnitude
+        
+        this.data.nodes.forEach(node => {
+            // Skip if node is being dragged
+            if (node.fx !== undefined && node.fy !== undefined) return;
+            
+            // Calculate distance to cursor
+            const dx = this.mousePosition.x - node.x;
+            const dy = this.mousePosition.y - node.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            // Apply attraction force if within radius
+            if (distance < attractRadius && distance > 0) {
+                const force = Math.min((attractRadius - distance) / attractForce, maxForce);
+                const forceX = (dx / distance) * force;
+                const forceY = (dy / distance) * force;
+                
+                // Apply velocity changes for smooth attraction
+                node.vx = (node.vx || 0) + forceX * 0.1;
+                node.vy = (node.vy || 0) + forceY * 0.1;
+                
+                // Apply damping to prevent oscillation
+                node.vx *= 0.95;
+                node.vy *= 0.95;
+                
+                // Add visual feedback for attracted nodes
+                this.addNodeAttractedEffect(node, distance, attractRadius);
+            } else {
+                // Remove attraction effect when outside radius
+                this.removeNodeAttractedEffect(node);
+            }
+        });
+        
+        // Restart simulation with low alpha to apply forces smoothly
+        if (this.simulation) {
+            this.simulation.alpha(0.05).restart();
+        }
+    }
+    
+    /**
+     * Add visual effect to nodes being attracted by cursor
+     */
+    addNodeAttractedEffect(node, distance, attractRadius) {
+        if (!this.nodes) return;
+        
+        // Calculate attraction intensity (closer = stronger effect)
+        const intensity = Math.max(0, (attractRadius - distance) / attractRadius);
+        
+        // Find the corresponding SVG node element
+        this.nodes.each(function(d) {
+            if (d.id === node.id) {
+                const element = d3.select(this);
+                
+                // Add glow effect based on attraction intensity
+                const glowIntensity = intensity * 0.5;
+                element.style('filter', `drop-shadow(0 0 ${8 * intensity}px rgba(0, 191, 255, ${glowIntensity}))`);
+                
+                // Slightly increase size when attracted
+                const originalRadius = node.baseRadius || parseFloat(element.attr('r'));
+                if (!node.baseRadius) node.baseRadius = originalRadius;
+                
+                const newRadius = originalRadius + (intensity * 2);
+                element.attr('r', newRadius);
+                
+                // Add pulsing animation for strongly attracted nodes
+                if (intensity > 0.7) {
+                    element.classed('cursor-attracted', true);
+                }
+            }
+        });
+    }
+    
+    /**
+     * Remove visual attraction effects from nodes
+     */
+    removeNodeAttractedEffect(node) {
+        if (!this.nodes) return;
+        
+        this.nodes.each(function(d) {
+            if (d.id === node.id) {
+                const element = d3.select(this);
+                
+                // Remove glow effect
+                element.style('filter', null);
+                
+                // Reset to original size
+                if (node.baseRadius) {
+                    element.attr('r', node.baseRadius);
+                }
+                
+                // Remove pulsing class
+                element.classed('cursor-attracted', false);
+            }
+        });
+    }
+    
+    /**
+     * Create cursor attraction radius indicator
+     */
+    createCursorIndicator() {
+        // Create cursor indicator circle
+        this.cursorIndicator = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        this.cursorIndicator.classList.add("cursor-indicator");
+        this.cursorIndicator.setAttribute("r", "180"); // Match attractRadius
+        this.cursorIndicator.setAttribute("fill", "none");
+        this.cursorIndicator.setAttribute("stroke", "rgba(0, 191, 255, 0.1)");
+        this.cursorIndicator.setAttribute("stroke-width", "1");
+        this.cursorIndicator.setAttribute("pointer-events", "none");
+        this.cursorIndicator.style.opacity = "0";
+        this.cursorIndicator.style.transition = "opacity 0.3s ease";
+        
+        // Insert at beginning so it appears behind nodes
+        this.svg.insertBefore(this.cursorIndicator, this.svg.firstChild.nextSibling);
+    }
+    
+    /**
+     * Show cursor indicator
+     */
+    showCursorIndicator() {
+        if (this.cursorIndicator) {
+            this.cursorIndicator.style.opacity = "1";
+        }
+    }
+    
+    /**
+     * Hide cursor indicator
+     */
+    hideCursorIndicator() {
+        if (this.cursorIndicator) {
+            this.cursorIndicator.style.opacity = "0";
+        }
+    }
+    
+    /**
+     * Update cursor indicator position
+     */
+    updateCursorIndicator() {
+        if (this.cursorIndicator) {
+            this.cursorIndicator.setAttribute("cx", this.mousePosition.x);
+            this.cursorIndicator.setAttribute("cy", this.mousePosition.y);
+        }
     }
 }

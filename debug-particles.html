@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Particles Debug</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #0A0F1F;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        #particles-js {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+        
+        .debug-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            padding-top: 40vh;
+            color: white;
+        }
+        
+        .debug-log {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.8);
+            color: #00ff00;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            max-width: 300px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body>
+    <div id="particles-js"></div>
+    <div class="debug-content">
+        <h1>Particles Debug Test</h1>
+        <p>Check debug log for particles.js status</p>
+    </div>
+
+    <div class="debug-log" id="debug-log">
+        <div>Debug Log:</div>
+    </div>
+
+    <script>
+        function log(message) {
+            const debugLog = document.getElementById('debug-log');
+            const timestamp = new Date().toLocaleTimeString();
+            debugLog.innerHTML += `<div>[${timestamp}] ${message}</div>`;
+            debugLog.scrollTop = debugLog.scrollHeight;
+            console.log(`[${timestamp}] ${message}`);
+        }
+
+        log("Starting particles debug test...");
+        
+        // Test if particles.js CDN loads
+        log("Loading particles.js from CDN...");
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js" 
+            onload="log('particles.js CDN loaded successfully')" 
+            onerror="log('ERROR: particles.js CDN failed to load')"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            log("DOM loaded, checking particlesJS availability...");
+            
+            if (typeof particlesJS === 'undefined') {
+                log("ERROR: particlesJS is not defined");
+                return;
+            }
+            
+            log("particlesJS is available, initializing...");
+            
+            try {
+                particlesJS('particles-js', {
+                    "particles": {
+                        "number": {
+                            "value": 10,
+                            "density": {
+                                "enable": true,
+                                "value_area": 800
+                            }
+                        },
+                        "color": {
+                            "value": "#00BFFF"
+                        },
+                        "shape": {
+                            "type": "circle"
+                        },
+                        "opacity": {
+                            "value": 0.5,
+                            "random": false
+                        },
+                        "size": {
+                            "value": 3,
+                            "random": true
+                        },
+                        "line_linked": {
+                            "enable": true,
+                            "distance": 150,
+                            "color": "#00BFFF",
+                            "opacity": 0.4,
+                            "width": 1
+                        },
+                        "move": {
+                            "enable": true,
+                            "speed": 2,
+                            "direction": "none",
+                            "random": false,
+                            "straight": false,
+                            "out_mode": "out",
+                            "bounce": false
+                        }
+                    },
+                    "interactivity": {
+                        "detect_on": "canvas",
+                        "events": {
+                            "onhover": {
+                                "enable": true,
+                                "mode": "grab"
+                            },
+                            "onclick": {
+                                "enable": true,
+                                "mode": "push"
+                            }
+                        },
+                        "modes": {
+                            "grab": {
+                                "distance": 140,
+                                "line_linked": {
+                                    "opacity": 1
+                                }
+                            },
+                            "push": {
+                                "particles_nb": 4
+                            }
+                        }
+                    },
+                    "retina_detect": true
+                });
+                
+                log("particlesJS initialization called successfully");
+                
+                // Check if particles are actually created
+                setTimeout(() => {
+                    if (window.pJSDom && window.pJSDom.length > 0) {
+                        const pJS = window.pJSDom[0].pJS;
+                        if (pJS && pJS.particles && pJS.particles.array) {
+                            log(`SUCCESS: ${pJS.particles.array.length} particles created`);
+                        } else {
+                            log("ERROR: Particles array not found");
+                        }
+                    } else {
+                        log("ERROR: pJSDom not created");
+                    }
+                }, 1000);
+                
+            } catch (error) {
+                log(`ERROR during initialization: ${error.message}`);
+                console.error("Particles error:", error);
+            }
+        });
+    </script>
+</body>
+</html>

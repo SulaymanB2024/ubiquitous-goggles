@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Simple Particles Test</title>
+    <style>
+        body { margin: 0; background: #0a0e1a; }
+        #particles-js {
+            position: absolute;
+            width: 100%;
+            height: 100vh;
+            background: rgba(0, 255, 0, 0.1); /* Green debug background */
+        }
+        .status {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            font-family: monospace;
+            z-index: 100;
+            background: rgba(0,0,0,0.8);
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="particles-js"></div>
+    <div class="status" id="status">Checking...</div>
+    
+    <script src="js/particles.min.js"></script>
+    <script>
+        const status = document.getElementById('status');
+        
+        function log(msg) {
+            console.log(msg);
+            status.innerHTML += '<br>' + msg;
+        }
+        
+        log('Starting simple test...');
+        
+        if (typeof particlesJS === 'undefined') {
+            log('ERROR: particlesJS not loaded');
+        } else {
+            log('SUCCESS: particlesJS loaded');
+            
+            particlesJS('particles-js', {
+                particles: {
+                    number: { value: 20 },
+                    color: { value: "#ffffff" },
+                    shape: { type: "circle" },
+                    size: { value: 3 },
+                    move: { enable: true, speed: 1 }
+                }
+            }, function() {
+                log('SUCCESS: Particles initialized');
+                
+                setTimeout(() => {
+                    const canvas = document.querySelector('#particles-js canvas');
+                    if (canvas) {
+                        log('SUCCESS: Canvas found - ' + canvas.width + 'x' + canvas.height);
+                        document.getElementById('particles-js').style.background = 'transparent';
+                    } else {
+                        log('ERROR: No canvas found');
+                    }
+                }, 500);
+            });
+        }
+    </script>
+</body>
+</html>

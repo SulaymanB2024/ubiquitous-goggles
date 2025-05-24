@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Particles Diagnostic</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #1a1a1a;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        
+        #particles-js {
+            position: absolute;
+            width: 100%;
+            height: 100vh;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            background: rgba(255, 0, 0, 0.1); /* Red tint to see container */
+        }
+        
+        .content {
+            position: relative;
+            z-index: 10;
+            padding: 20px;
+            text-align: center;
+            margin-top: 50px;
+        }
+        
+        .diagnostic {
+            margin: 20px;
+            padding: 10px;
+            border: 1px solid #333;
+            background: rgba(0, 0, 0, 0.8);
+        }
+        
+        .status {
+            font-weight: bold;
+            margin: 5px 0;
+        }
+        
+        .success { color: #0f0; }
+        .error { color: #f00; }
+        .warning { color: #ff0; }
+    </style>
+</head>
+<body>
+    <div id="particles-js"></div>
+    
+    <div class="content">
+        <h1>Particles.js Diagnostic Tool</h1>
+        
+        <div class="diagnostic">
+            <h3>Library Status</h3>
+            <div id="library-status" class="status">Checking...</div>
+        </div>
+        
+        <div class="diagnostic">
+            <h3>Container Status</h3>
+            <div id="container-status" class="status">Checking...</div>
+        </div>
+        
+        <div class="diagnostic">
+            <h3>Initialization Status</h3>
+            <div id="init-status" class="status">Checking...</div>
+        </div>
+        
+        <div class="diagnostic">
+            <h3>Canvas Status</h3>
+            <div id="canvas-status" class="status">Checking...</div>
+        </div>
+        
+        <div class="diagnostic">
+            <h3>Particle Count</h3>
+            <div id="particle-count" class="status">Checking...</div>
+        </div>
+        
+        <div class="diagnostic">
+            <h3>Console Output</h3>
+            <div id="console-output" class="status"></div>
+        </div>
+    </div>
+    
+    <!-- Load particles.js from CDN -->
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    
+    <script>
+        // Capture console output
+        const originalLog = console.log;
+        const originalError = console.error;
+        const consoleOutput = document.getElementById('console-output');
+        
+        function addConsoleMessage(message, type = 'log') {
+            const div = document.createElement('div');
+            div.textContent = `[${type.toUpperCase()}] ${message}`;
+            div.className = type === 'error' ? 'error' : 'success';
+            consoleOutput.appendChild(div);
+        }
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            addConsoleMessage(args.join(' '), 'log');
+        };
+        
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            addConsoleMessage(args.join(' '), 'error');
+        };
+        
+        // Diagnostic functions
+        function checkLibrary() {
+            const status = document.getElementById('library-status');
+            if (typeof particlesJS !== 'undefined') {
+                status.textContent = 'particlesJS library loaded successfully';
+                status.className = 'status success';
+                return true;
+            } else {
+                status.textContent = 'particlesJS library not found';
+                status.className = 'status error';
+                return false;
+            }
+        }
+        
+        function checkContainer() {
+            const status = document.getElementById('container-status');
+            const container = document.getElementById('particles-js');
+            if (container) {
+                status.textContent = `Container found: ${container.offsetWidth}x${container.offsetHeight}`;
+                status.className = 'status success';
+                return true;
+            } else {
+                status.textContent = 'Container not found';
+                status.className = 'status error';
+                return false;
+            }
+        }
+        
+        function checkCanvas() {
+            const status = document.getElementById('canvas-status');
+            const canvas = document.querySelector('#particles-js canvas');
+            if (canvas) {
+                status.textContent = `Canvas found: ${canvas.width}x${canvas.height}`;
+                status.className = 'status success';
+                return true;
+            } else {
+                status.textContent = 'Canvas not found';
+                status.className = 'status error';
+                return false;
+            }
+        }
+        
+        function checkParticleCount() {
+            const status = document.getElementById('particle-count');
+            if (window.pJSDom && window.pJSDom[0] && window.pJSDom[0].pJS) {
+                const count = window.pJSDom[0].pJS.particles.array.length;
+                status.textContent = `Active particles: ${count}`;
+                status.className = 'status success';
+                return true;
+            } else {
+                status.textContent = 'No particles data found';
+                status.className = 'status error';
+                return false;
+            }
+        }
+        
+        // Initialize particles
+        function initializeDiagnosticParticles() {
+            const initStatus = document.getElementById('init-status');
+            
+            if (!checkLibrary() || !checkContainer()) {
+                initStatus.textContent = 'Prerequisites not met';
+                initStatus.className = 'status error';
+                return;
+            }
+            
+            initStatus.textContent = 'Initializing...';
+            initStatus.className = 'status warning';
+            
+            // Simplified configuration for testing
+            particlesJS('particles-js', {
+                "particles": {
+                    "number": {
+                        "value": 50,
+                        "density": {
+                            "enable": true,
+                            "value_area": 800
+                        }
+                    },
+                    "color": {
+                        "value": "#00BFFF"
+                    },
+                    "shape": {
+                        "type": "circle"
+                    },
+                    "opacity": {
+                        "value": 0.8,
+                        "random": false
+                    },
+                    "size": {
+                        "value": 5,
+                        "random": true
+                    },
+                    "line_linked": {
+                        "enable": true,
+                        "distance": 150,
+                        "color": "#00BFFF",
+                        "opacity": 0.4,
+                        "width": 1
+                    },
+                    "move": {
+                        "enable": true,
+                        "speed": 2,
+                        "direction": "none",
+                        "random": false,
+                        "straight": false,
+                        "out_mode": "out",
+                        "bounce": false
+                    }
+                },
+                "interactivity": {
+                    "detect_on": "canvas",
+                    "events": {
+                        "onhover": {
+                            "enable": true,
+                            "mode": "repulse"
+                        },
+                        "onclick": {
+                            "enable": true,
+                            "mode": "push"
+                        },
+                        "resize": true
+                    }
+                },
+                "retina_detect": true
+            }, function() {
+                initStatus.textContent = 'Particles initialized successfully!';
+                initStatus.className = 'status success';
+                
+                // Check canvas and particle count after initialization
+                setTimeout(() => {
+                    checkCanvas();
+                    checkParticleCount();
+                }, 500);
+            });
+        }
+        
+        // Run diagnostics
+        window.addEventListener('load', function() {
+            console.log('Starting particles diagnostic...');
+            setTimeout(initializeDiagnosticParticles, 100);
+        });
+    </script>
+</body>
+</html>

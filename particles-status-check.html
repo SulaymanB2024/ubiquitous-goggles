@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Particles Status Check</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #0a0f1c;
+            color: #00bfff;
+            padding: 20px;
+            margin: 0;
+        }
+        .status-box {
+            background: rgba(0, 191, 255, 0.1);
+            border: 1px solid #00bfff;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success { color: #00ff00; }
+        .error { color: #ff0040; }
+        .warning { color: #ffaa00; }
+        iframe {
+            width: 100%;
+            height: 400px;
+            border: 2px solid #00bfff;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔬 Particles System Status Check</h1>
+    
+    <div class="status-box">
+        <h3>📊 Real-time Status Monitor</h3>
+        <div id="status-output"></div>
+    </div>
+    
+    <div class="status-box">
+        <h3>🖼️ Live Portfolio Preview</h3>
+        <iframe src="http://localhost:8000" id="portfolio-frame"></iframe>
+    </div>
+    
+    <script>
+        const statusOutput = document.getElementById('status-output');
+        
+        function addStatus(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'success' ? 'success' : type === 'error' ? 'error' : type === 'warning' ? 'warning' : '';
+            statusOutput.innerHTML += `<div class="${className}">[${timestamp}] ${message}</div>`;
+            statusOutput.scrollTop = statusOutput.scrollHeight;
+        }
+        
+        addStatus('🚀 Starting particles system status check...');
+        
+        // Check if particles files exist
+        fetch('/js/particles.min.js')
+            .then(response => {
+                if (response.ok) {
+                    addStatus('✅ particles.min.js found and accessible', 'success');
+                } else {
+                    addStatus('❌ particles.min.js not found', 'error');
+                }
+            })
+            .catch(err => addStatus('❌ Error checking particles.min.js: ' + err.message, 'error'));
+        
+        fetch('/js/particles-config.js')
+            .then(response => {
+                if (response.ok) {
+                    addStatus('✅ particles-config.js found and accessible', 'success');
+                } else {
+                    addStatus('❌ particles-config.js not found', 'error');
+                }
+            })
+            .catch(err => addStatus('❌ Error checking particles-config.js: ' + err.message, 'error'));
+        
+        fetch('/css/particles-fix.css')
+            .then(response => {
+                if (response.ok) {
+                    addStatus('✅ particles-fix.css found and accessible', 'success');
+                } else {
+                    addStatus('❌ particles-fix.css not found', 'error');
+                }
+            })
+            .catch(err => addStatus('❌ Error checking particles-fix.css: ' + err.message, 'error'));
+        
+        // Monitor iframe load
+        document.getElementById('portfolio-frame').onload = function() {
+            addStatus('📱 Portfolio page loaded in iframe', 'success');
+            
+            // Try to access iframe console messages
+            try {
+                const frame = this.contentWindow;
+                if (frame) {
+                    addStatus('🔍 Monitoring iframe for particles initialization...', 'warning');
+                    
+                    // Check periodically for particles
+                    let checkCount = 0;
+                    const checkInterval = setInterval(() => {
+                        checkCount++;
+                        try {
+                            const particlesContainer = frame.document.getElementById('particles-js');
+                            const canvas = frame.document.querySelector('#particles-js canvas');
+                            
+                            if (particlesContainer) {
+                                addStatus(`✅ Particles container found (check ${checkCount})`, 'success');
+                                
+                                if (canvas) {
+                                    addStatus(`🎨 Particles canvas found! Dimensions: ${canvas.width}x${canvas.height}`, 'success');
+                                    
+                                    if (frame.pJSDom && frame.pJSDom[0]) {
+                                        const particleCount = frame.pJSDom[0].pJS.particles.array.length;
+                                        addStatus(`🔢 Active particles detected: ${particleCount}`, 'success');
+                                        addStatus('🎉 PARTICLES SYSTEM IS WORKING!', 'success');
+                                        clearInterval(checkInterval);
+                                    } else {
+                                        addStatus('⚠️ Canvas found but particles not initialized yet...', 'warning');
+                                    }
+                                } else {
+                                    addStatus('⚠️ Container found but no canvas yet...', 'warning');
+                                }
+                            } else {
+                                addStatus(`❌ Particles container not found (check ${checkCount})`, 'error');
+                            }
+                        } catch (e) {
+                            addStatus(`⚠️ Cannot access iframe content (check ${checkCount}): ${e.message}`, 'warning');
+                        }
+                        
+                        if (checkCount >= 10) {
+                            addStatus('⏰ Stopping checks after 10 attempts', 'warning');
+                            clearInterval(checkInterval);
+                        }
+                    }, 2000);
+                }
+            } catch (e) {
+                addStatus('⚠️ Cannot access iframe content: ' + e.message, 'warning');
+            }
+        };
+        
+        addStatus('🎯 Status monitor initialized. Loading portfolio...');
+    </script>
+</body>
+</html>

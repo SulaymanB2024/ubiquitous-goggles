@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Final Particles Test</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #0a0f1a;
+            color: white;
+            font-family: 'Roboto Mono', monospace;
+            overflow: hidden;
+        }
+        
+        #hero {
+            position: relative;
+            height: 100vh;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #0a0f1a;
+        }
+        
+        #particles-js {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            background: transparent;
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            color: white;
+        }
+        
+        .debug-info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 10;
+            background: rgba(0,0,0,0.8);
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            max-width: 300px;
+        }
+        
+        .debug-log {
+            max-height: 200px;
+            overflow-y: auto;
+            background: #1a1a1a;
+            padding: 5px;
+            border-radius: 3px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="hero">
+        <div id="particles-js"></div>
+        <div class="hero-content">
+            <h1>PARTICLES TEST</h1>
+            <p>Testing particles initialization</p>
+        </div>
+    </div>
+    
+    <div class="debug-info">
+        <div><strong>Particles Status:</strong> <span id="particles-status">Loading...</span></div>
+        <div><strong>Container:</strong> <span id="container-status">Checking...</span></div>
+        <div><strong>Library:</strong> <span id="library-status">Loading...</span></div>
+        <div class="debug-log" id="debug-log"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <script>
+        function logToDebug(message) {
+            const log = document.getElementById('debug-log');
+            const time = new Date().toLocaleTimeString();
+            log.innerHTML += `[${time}] ${message}<br>`;
+            log.scrollTop = log.scrollHeight;
+            console.log(message);
+        }
+        
+        function updateStatus(element, status, success = true) {
+            document.getElementById(element).textContent = status;
+            document.getElementById(element).style.color = success ? '#00ff00' : '#ff0000';
+        }
+        
+        // Check if container exists
+        const container = document.getElementById('particles-js');
+        if (container) {
+            updateStatus('container-status', 'Found ✓');
+            logToDebug('Container found: ' + container.id);
+        } else {
+            updateStatus('container-status', 'Missing ✗', false);
+            logToDebug('ERROR: Container not found');
+        }
+        
+        // Check if library loaded
+        if (typeof particlesJS !== 'undefined') {
+            updateStatus('library-status', 'Loaded ✓');
+            logToDebug('ParticlesJS library loaded successfully');
+        } else {
+            updateStatus('library-status', 'Failed ✗', false);
+            logToDebug('ERROR: ParticlesJS library not loaded');
+        }
+        
+        // Initialize particles
+        function initParticles() {
+            logToDebug('Starting particles initialization...');
+            
+            if (typeof particlesJS === 'undefined') {
+                updateStatus('particles-status', 'Library Missing ✗', false);
+                logToDebug('ERROR: particlesJS not available');
+                return;
+            }
+            
+            if (!document.getElementById('particles-js')) {
+                updateStatus('particles-status', 'Container Missing ✗', false);
+                logToDebug('ERROR: particles-js container not found');
+                return;
+            }
+            
+            particlesJS('particles-js', {
+                "particles": {
+                    "number": {
+                        "value": 80,
+                        "density": {
+                            "enable": true,
+                            "value_area": 800
+                        }
+                    },
+                    "color": {
+                        "value": "#00BFFF"
+                    },
+                    "shape": {
+                        "type": "circle"
+                    },
+                    "opacity": {
+                        "value": 0.5,
+                        "random": false
+                    },
+                    "size": {
+                        "value": 3,
+                        "random": true
+                    },
+                    "line_linked": {
+                        "enable": true,
+                        "distance": 150,
+                        "color": "#00BFFF",
+                        "opacity": 0.4,
+                        "width": 1
+                    },
+                    "move": {
+                        "enable": true,
+                        "speed": 2,
+                        "direction": "none",
+                        "random": false,
+                        "straight": false,
+                        "out_mode": "out",
+                        "bounce": false
+                    }
+                },
+                "interactivity": {
+                    "detect_on": "canvas",
+                    "events": {
+                        "onhover": {
+                            "enable": true,
+                            "mode": "grab"
+                        },
+                        "onclick": {
+                            "enable": true,
+                            "mode": "push"
+                        },
+                        "resize": true
+                    },
+                    "modes": {
+                        "grab": {
+                            "distance": 140,
+                            "line_linked": {
+                                "opacity": 1
+                            }
+                        },
+                        "push": {
+                            "particles_nb": 4
+                        }
+                    }
+                },
+                "retina_detect": true
+            }, function() {
+                updateStatus('particles-status', 'Initialized ✓');
+                logToDebug('Particles initialized successfully!');
+                
+                // Check if particles are actually created
+                if (window.pJSDom && window.pJSDom[0] && window.pJSDom[0].pJS) {
+                    const pJS = window.pJSDom[0].pJS;
+                    logToDebug(`Particles array length: ${pJS.particles.array.length}`);
+                    logToDebug(`Canvas size: ${pJS.canvas.w}x${pJS.canvas.h}`);
+                } else {
+                    logToDebug('WARNING: pJSDom not accessible');
+                }
+            });
+        }
+        
+        // Wait for DOM and library to be ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initParticles);
+        } else {
+            initParticles();
+        }
+        
+        // Also try on window load as backup
+        window.addEventListener('load', function() {
+            if (!window.pJSDom || !window.pJSDom[0]) {
+                logToDebug('Retrying initialization on window load...');
+                setTimeout(initParticles, 500);
+            }
+        });
+    </script>
+</body>
+</html>
