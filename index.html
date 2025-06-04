@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#182235">
-    <meta name="description" content="Strategic Insight Engine | Sulayman Bowles Portfolio">
+    <!-- Primary metadata for SEO -->
     <title>Sulayman Bowles - Portfolio | Strategic Insight Engine</title>
     
     <!-- Google Fonts: Inter (300,400,500,600,700,900) and Roboto Mono (400) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&amp;family=Roboto+Mono&amp;display=swap" rel="stylesheet">
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
@@ -47,7 +46,6 @@
     <link rel="stylesheet" href="css/system-log.css">
     <link rel="stylesheet" href="css/enhanced-system-log.css">
     <link rel="stylesheet" href="css/enhanced-skills.css">
-    <link rel="stylesheet" href="css/enhanced-insights.css">
     <link rel="stylesheet" href="css/timeline-filter.css">
     
     <!-- Meta theme color for browser UI -->
@@ -397,6 +395,13 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Status displays -->
+                <div class="connection-status">
+                    <div class="connection-indicator"></div>
+                    <span class="connection-text">CONNECTED</span>
+                </div>
+                <div class="node-count">NODES: <span class="node-count-value">0</span></div>
             </div>
         </div>
     </section>
@@ -706,6 +711,9 @@
             <span class="log-status" id="log-status">System monitoring active</span>
         </div>
     </div>
+
+    <!-- Info Panel Container -->
+    <div id="info-panel-container"></div>
     
     <!-- Footer: "System Status Bar" -->
     <footer>
@@ -745,6 +753,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Create network visualization
             window.networkVisualization = new NetworkVisualization('network-container');
+            const networkViz = window.networkVisualization;
             
             // Add event listeners for network controls
             document.getElementById('reset-network').addEventListener('click', function() {

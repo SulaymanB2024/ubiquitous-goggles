@@ -380,5 +380,7 @@ class SystemLog {
 
 // Initialize system log when the DOM is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
-    window.systemLog = new SystemLog();
+    const log = new SystemLog();
+    window.systemLog = log;
+    window.SystemLog = log;
 });

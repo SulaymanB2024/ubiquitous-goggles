@@ -44,6 +44,11 @@ class NetworkVisualization {
             nodeCount: 0,
             maxNodesBeforeSimplification: 100
         };
+
+        // Status indicator elements
+        this.nodeCountElement = null;
+        this.nodeCountValueElement = null;
+        this.connectionStatusElement = null;
         
         // Initialize the InfoPanel
         this.infoPanel = new InfoPanel();
@@ -102,7 +107,12 @@ class NetworkVisualization {
         
         // Create the visualization elements
         this.createVisualization();
-        
+
+        // Create status indicators
+        this.createStatusIndicators();
+        this.updateNodeCount();
+        this.setConnectionStatus(true);
+
         // Start the simulation
         this.simulation.on("tick", this.ticked.bind(this));
     }
@@ -536,6 +546,8 @@ class NetworkVisualization {
         // Recreate simulation
         this.createSimulation();
         this.createVisualization();
+        this.updateNodeCount();
+        this.setConnectionStatus(true);
         this.simulation.on("tick", this.ticked.bind(this));
     }
     
@@ -721,9 +733,10 @@ class NetworkVisualization {
             // Create pulse circle
             const pulse = document.createElementNS("http://www.w3.org/2000/svg", "circle");
             pulse.classList.add("node-pulse");
+            const baseRadius = this.getNodeRadius(node);
             pulse.setAttribute("cx", node.x);
             pulse.setAttribute("cy", node.y);
-            pulse.setAttribute("r", node.radius * 1.5);
+            pulse.setAttribute("r", baseRadius * 1.5);
             pulse.setAttribute("fill", "none");
             pulse.setAttribute("stroke", this.getNodeColor(node));
             pulse.setAttribute("stroke-width", "2");
@@ -734,8 +747,8 @@ class NetworkVisualization {
             // Create animation
             const animate = document.createElementNS("http://www.w3.org/2000/svg", "animate");
             animate.setAttribute("attributeName", "r");
-            animate.setAttribute("from", node.radius * 1.5);
-            animate.setAttribute("to", node.radius * 4);
+            animate.setAttribute("from", baseRadius * 1.5);
+            animate.setAttribute("to", baseRadius * 4);
             animate.setAttribute("dur", "1.5s");
             animate.setAttribute("repeatCount", "indefinite");
             pulse.appendChild(animate);
@@ -1021,6 +1034,50 @@ class NetworkVisualization {
         if (this.cursorIndicator) {
             this.cursorIndicator.setAttribute("cx", this.mousePosition.x);
             this.cursorIndicator.setAttribute("cy", this.mousePosition.y);
+        }
+    }
+
+    /**
+     * Create status indicator elements inside the container
+     */
+    createStatusIndicators() {
+        // Node count display
+        this.nodeCountElement = document.createElement('div');
+        this.nodeCountElement.className = 'node-count';
+        this.nodeCountElement.innerHTML = 'NODES: <span class="node-count-value"></span>';
+        this.nodeCountValueElement = this.nodeCountElement.querySelector('.node-count-value');
+        this.container.appendChild(this.nodeCountElement);
+
+        // Connection status indicator
+        this.connectionStatusElement = document.createElement('div');
+        this.connectionStatusElement.className = 'connection-status';
+        this.connectionStatusElement.innerHTML = '<div class="connection-indicator"></div><span class="connection-text">CONNECTED</span>';
+        this.container.appendChild(this.connectionStatusElement);
+    }
+
+    /**
+     * Update the node count display
+     */
+    updateNodeCount() {
+        if (this.nodeCountValueElement) {
+            this.nodeCountValueElement.textContent = this.data.nodes.length;
+        }
+    }
+
+    /**
+     * Set connection status indicator
+     * @param {boolean} connected
+     */
+    setConnectionStatus(connected) {
+        if (!this.connectionStatusElement) return;
+        const indicator = this.connectionStatusElement.querySelector('.connection-indicator');
+        const text = this.connectionStatusElement.querySelector('.connection-text');
+        if (connected) {
+            indicator.style.backgroundColor = 'var(--theme-accent-primary)';
+            text.textContent = 'CONNECTED';
+        } else {
+            indicator.style.backgroundColor = '#a33';
+            text.textContent = 'DISCONNECTED';
         }
     }
 }

@@ -4,8 +4,8 @@
  * Optimized for performance with event debouncing and lazy initialization
  */
 
-// Central event bus for optimized component communication
-window.EventBus = {
+// Use existing EventBus instance if available
+window.EventBus = window.EventBus || {
     events: {},
     
     // Subscribe to an event

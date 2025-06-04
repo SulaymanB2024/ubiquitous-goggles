@@ -104,69 +104,21 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Project modal functionality is now handled by modal.js
     console.log('Project card initialization complete.');
-    
+
     // Initialize related projects functionality
-    document.addEventListener('DOMContentLoaded', () => {
-        const relatedProjectItems = document.querySelectorAll('.related-project-item');
-        
-        // Connect related project items to modal system
-        relatedProjectItems.forEach(item => {
-            item.addEventListener('click', function() {
-                const projectId = this.getAttribute('data-project');
-                
-                // Use the modal system if available
-                if (window.modalSystem) {
-                    window.modalSystem.openModal(`modal-project-${projectId}`);
-                }
-            });
-        });
-        
-        // Initialize gallery items functionality
-        const galleryItems = document.querySelectorAll('.gallery-item');
-        galleryItems.forEach(item => {
-            item.addEventListener('click', function() {
-                const imgSrc = this.querySelector('img').src;
-                const imgAlt = this.querySelector('img').alt;
-                
-                // In the future, this could open a fullscreen image viewer
-                console.log(`Gallery item clicked: ${imgAlt}`);
-                
-                // Log to system log if available
-                if (window.systemLog) {
-                    window.systemLog.addEntry('info', `Viewed image: ${imgAlt}`, { 
-                        styleOverrides: {
-                            timestamp: 'color: var(--theme-accent-secondary); font-style: italic;'
-                        }
-                    });
-                }
-            });
+    const relatedProjectItems = document.querySelectorAll('.related-project-item');
+
+    // Connect related project items to modal system
+    relatedProjectItems.forEach(item => {
+        item.addEventListener('click', function() {
+            const projectId = this.getAttribute('data-project');
+
+            // Use the modal system if available
+            if (window.modalSystem) {
+                window.modalSystem.openModal(`modal-project-${projectId}`);
+            }
         });
     });
-        });
-    });
-    
-    // Close modal functions
-    function closeModals() {
-        modalContainers.forEach(modal => {
-            modal.classList.remove('active');
-        });
-        document.body.style.overflow = ''; // Enable scrolling
-    }
-    
-    // Close on X button click
-    modalCloseButtons.forEach(button => {
-        button.addEventListener('click', closeModals);
-    });
-    
-    // Close on overlay click
-    modalOverlays.forEach(overlay => {
-        overlay.addEventListener('click', closeModals);
-    });
-    
-    // Close on ESC key
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            closeModals();
-        }
-    });
+
+    // Gallery item interactions are handled by image-gallery.js
 });
