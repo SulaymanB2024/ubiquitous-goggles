@@ -88,9 +88,12 @@ class EnhancedNavigation {
             sidebarItem.className = 'sidebar-item';
             sidebarItem.href = item.href;
             sidebarItem.dataset.section = item.id;
+            sidebarItem.dataset.tooltip = item.label;
+            sidebarItem.setAttribute('aria-label', `Navigate to ${item.label}`);
+            sidebarItem.setAttribute('title', item.label);
             
             sidebarItem.innerHTML = `
-                <div class="sidebar-item-icon">
+                <div class="sidebar-item-icon" aria-hidden="true">
                     <i class="fas ${item.icon}"></i>
                 </div>
                 <span class="sidebar-item-label">${item.label}</span>
