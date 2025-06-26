@@ -27,10 +27,61 @@
     color: var(--theme-light-text);
     text-decoration: none;
     transition: color 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
 }
 
 .navbar-logo a:hover {
     color: var(--theme-accent-primary);
+}
+
+.system-status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--theme-accent-primary);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    background-color: var(--theme-accent-primary);
+    border-radius: 50%;
+    position: relative;
+}
+
+.status-dot::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    border-radius: 50%;
+    background-color: var(--theme-accent-primary);
+    opacity: 0.4;
+    animation: pulse 2s infinite;
+}
+
+.system-name {
+    font-weight: 700;
+    color: var(--theme-light-text);
+    letter-spacing: 0.1em;
+}
+
+.system-version {
+    font-size: 0.85rem;
+    color: var(--theme-medium-text);
+    font-weight: 400;
+    padding: 0.2rem 0.5rem;
+    background-color: rgba(var(--theme-accent-primary-rgb), 0.1);
+    border: 1px solid rgba(var(--theme-accent-primary-rgb), 0.3);
+    border-radius: 3px;
 }
 
 .navbar-links {
@@ -69,11 +120,34 @@
     border: 1px solid var(--theme-accent-primary);
     border-radius: 4px;
     transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
 }
 
 .btn-nav:hover {
     background-color: rgba(var(--theme-accent-primary-rgb), 0.1);
     transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(var(--theme-accent-primary-rgb), 0.2);
+}
+
+.btn-nav:focus {
+    outline: 2px solid var(--theme-accent-primary);
+    outline-offset: 2px;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 0.4;
+    }
+    50% {
+        transform: scale(1.5);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 0.4;
+    }
 }
 
 /* Mobile Navigation */
