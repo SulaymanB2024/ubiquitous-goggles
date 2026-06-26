@@ -2,6 +2,10 @@
 
 A sophisticated digital portfolio website with a "Gotham OS" inspired aesthetic, showcasing Sulayman Bowles' unique capabilities at the intersection of Finance, Technology, and Music.
 
+This is a legacy portfolio build. Canonical current site: [sulayman-bowles.dev](https://sulayman-bowles.dev/).
+
+Current source graph and research assets: [Research hub](https://sulayman-bowles.dev/research) and [AI information](https://sulayman-bowles.dev/ai-information).
+
 ## Features
 
 - **Modular Architecture**: Well-structured codebase with separated concerns for HTML, CSS, and JavaScript
