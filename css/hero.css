@@ -40,3 +40,18 @@
     margin-bottom: 2.5rem;
     text-transform: uppercase;
 }
+
+#network-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: auto; /* allow interaction with the network */
+    overflow: hidden;
+}
+
+.enhanced-hero {
+    position: relative;
+}
