@@ -117,16 +117,23 @@
         <div class="container">
             <div class="navbar-content">
                 <div class="navbar-logo">
-                    <a href="#hero"><span class="system-status-indicator">SYSTEM ONLINE</span> <span class="system-name">SULAYMAN BOWLES OS</span> <span class="system-version">v2.0</span></a>
+                    <a href="#hero" aria-label="Navigate to home - Sulayman Bowles OS v2.0">
+                        <span class="system-status-indicator" aria-label="System status: Online">
+                            <span class="status-dot"></span>
+                            SYSTEM ONLINE
+                        </span>
+                        <span class="system-name">SULAYMAN BOWLES OS</span>
+                        <span class="system-version">v2.0</span>
+                    </a>
                 </div>
                 <div class="navbar-links desktop-nav">
-                    <a href="#about" class="nav-link">ABOUT</a>
-                    <a href="#projects" class="nav-link">PROJECTS</a>
-                    <a href="#network" class="nav-link">NETWORK</a>
-                    <a href="#skills" class="nav-link">SKILLS</a>
-                    <a href="#leadership" class="nav-link">LEADERSHIP</a>
-                    <a href="#contact" class="nav-link">CONTACT</a>
-                    <a href="#" class="btn-nav">[ RESUME_PDF ]</a>
+                    <a href="#about" class="nav-link" aria-label="Navigate to About section">ABOUT</a>
+                    <a href="#projects" class="nav-link" aria-label="Navigate to Projects section">PROJECTS</a>
+                    <a href="#network" class="nav-link" aria-label="Navigate to Network section">NETWORK</a>
+                    <a href="#skills" class="nav-link" aria-label="Navigate to Skills section">SKILLS</a>
+                    <a href="#leadership" class="nav-link" aria-label="Navigate to Leadership section">LEADERSHIP</a>
+                    <a href="#contact" class="nav-link" aria-label="Navigate to Contact section">CONTACT</a>
+                    <a href="#" class="btn-nav" aria-label="Download Resume PDF">[ RESUME_PDF ]</a>
                 </div>
                 <button class="mobile-menu-btn" aria-label="Toggle navigation menu">
                     <i class="fas fa-bars"></i>
@@ -169,12 +176,38 @@
         
         <div class="container">
             <div class="hero-content">
-                <h1>SULAYMAN BOWLES</h1>
-                <p class="tagline">STRATEGIC INSIGHT ENGINE</p>
-                <a href="#about" class="btn btn-primary">[ ENGAGE INTERFACE ]</a>
+                <h1 aria-label="Sulayman Bowles">SULAYMAN BOWLES</h1>
+                <div class="tagline-container">
+                    <div class="tagline-rule left" aria-hidden="true"></div>
+                    <p class="tagline" aria-label="Strategic Insight Engine">STRATEGIC INSIGHT ENGINE</p>
+                    <div class="tagline-rule right" aria-hidden="true"></div>
+                </div>
+                <a href="#about" class="btn btn-primary cta-button" aria-label="Engage with the interface to learn more">
+                    <span class="btn-text">[ ENGAGE INTERFACE ]</span>
+                    <span class="btn-effect" aria-hidden="true"></span>
+                </a>
             </div>
         </div>
+        
+        <!-- Scroll hint for mobile -->
+        <div class="scroll-hint" aria-label="Scroll down for more content">
+            <i class="fas fa-chevron-down" aria-hidden="true"></i>
+            <span class="sr-only">Scroll down for more content</span>
+        </div>
     </section>
+    
+    <!-- System Log External Controls -->
+    <div class="system-log-external-controls" aria-label="System log controls">
+        <button class="system-log-toggle" aria-label="Toggle system log panel" title="Toggle System Log">
+            <i class="fas fa-terminal" aria-hidden="true"></i>
+        </button>
+        <button class="system-log-clear" aria-label="Clear system log" title="Clear Log">
+            <i class="fas fa-trash" aria-hidden="true"></i>
+        </button>
+        <button class="theme-toggle" aria-label="Toggle dark mode" title="Toggle Theme">
+            <i class="fas fa-adjust" aria-hidden="true"></i>
+        </button>
+    </div>
     
     <!-- About Section: "System Architecture" -->
     <section id="about" class="section-about">
